@@ -1,5 +1,4 @@
 import argparse
-import os
 
 from utils import mutators
 
@@ -14,12 +13,9 @@ def parse_options():
                     nargs=argparse.REMAINDER,
                     help="the command (with optional arguments)")
 
-    ap.add_argument("-p",
-                    dest="nprocs",
-                    type=int,
-                    default=1,
-                    help="use nprocs parallel processes, default: {}".format(
-                        os.cpu_count()))
+    ap.add_argument('--max-threads', type = int, metavar = 'n', default = 1,
+                               help = 'number of threads to use; #processors+n if n<=0')
+    ap.add_argument('--dump-config', action='store_true', default = False, help = 'dump configuration')
     ap.add_argument("-c",
                     dest="cmd_cc",
                     help="cross check command")

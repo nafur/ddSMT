@@ -24,6 +24,7 @@
 
 import logging
 import os
+import pprint
 import shutil
 import sys
 import time
@@ -45,26 +46,34 @@ from utils.subst import Substitution
 import utils.iter as iters
 import utils.smtlib as smtlib
 
-g_tmp_dir = tempfile.mkdtemp(prefix="ddsmt-")
-TMPFILE_PREFIX = os.path.join(g_tmp_dir, "ddsmt-tmp-{}.smt2")
-g_tmpbin = os.path.join(g_tmp_dir, "binary")
-g_tmpbin_cc = os.path.join(g_tmp_dir, "binary-cc")
-g_tmpfile = TMPFILE_PREFIX.format(os.getpid())
 
-RunInfo = namedtuple("RunInfo", ["exit", "out", "err", "runtime"])
+def check_options():
+    if options.args().max_threads != 1:
+        # configure number of threads
+        if options.args().max_threads <= 0:
+            options.args().max_threads = os.cpu_count() + options.args().max_threads
+        logging.info('Using up to %d threads.', options.args().max_threads)
 
-g_golden_run = None
-g_golden_run_cc = None
-g_ntests = 0
-g_args = None
+    if options.args().dump_config:
+        pprint.pprint(vars(options.args()))
 
+    # check input file
+    if not os.path.isfile(options.args().infile):
+        raise Exception('input file is not a regular file')
 
-#f = [('set-logic', 'QF_FP'), ('declare-fun', 'a', (), ('_', 'FloatingPoint', '53', '11')), ('assert', ('=', 'a', ('_', '+oo', '53', '11'))), ('check-sat',)]
-#s = Substitution()
-#s.add_global('FloatingPoint', None)
-#s.apply(f)
-#sys.exit(0)
+    if options.args().parser_test:
+        # only parse and print
+        exprs = parser.parse_smtlib(open(options.args().infile).read())
+        print(parser.render_smtlib(exprs))
+        sys.exit(0)
 
+    # check executable
+    if not options.args().cmd:
+        raise Exception('No executable was specified as command')
+    if not os.path.isfile(options.args().cmd[0]):
+        raise Exception('Command "{}" is not a regular file'.format(options.args().cmd[0]))
+    if not os.access(options.args().cmd[0], os.X_OK):
+        raise Exception('Command "{}" is not executable'.format(options.args().cmd[0]))
 
 def setup_logging():
     logging.basicConfig(format='[ddSMT %(levelname)s] %(message)s')
@@ -77,157 +86,9 @@ def setup_logging():
         options.args().verbosity, logging.DEBUG))
 
 
-class DDSMTException(Exception):
-    def __init__(self, msg):
-        self.msg = msg
-
-    def __str__(self):
-        return "[ddsmt] Error: {}".format(self.msg)
-
-
-def _cleanup():
-    if os.path.exists(g_tmp_dir):
-        shutil.rmtree(g_tmp_dir)
-
-
-def _print_exprs(filename, exprs):
-    with open(filename, 'w') as outfile:
-        outfile.write(smtlib.to_str_iter(exprs))
-        outfile.write('\n')
-
-
-def _process_substitution(tup):
-    exprs, subset, substs = tup
-
-    subst = Substitution()
-    for x, y in zip(subset, substs):
-        subst.add(x, y)
-
-    tmpfile = TMPFILE_PREFIX.format(os.getpid())
-    test_exprs = subst.apply(exprs)
-    _print_exprs(tmpfile, test_exprs)
-
-    nreduced = 0
-    runtime = 0
-    start = time.time()
-    if checker.check(tmpfile):
-        runtime = time.time() - start
-        nreduced = iters.count_exprs(exprs) - iters.count_exprs(test_exprs)
-        exprs = test_exprs
-
-    return exprs, nreduced, runtime
-
-
-def _process_substitutions(pool, exprs, superset, superset_substs):
-    assert len(superset) == len(superset_substs)
-
-    global g_cur_runtime, g_ntests
-
-    nreduced_total = 0
-    nexprs = iters.count_exprs(exprs)
-
-    gran = len(superset)
-    while gran > 0:
-
-        # Partition superset and superset_substs into lists of size gran
-        subsets = [superset[s:s + gran] for s in range(0, len(superset), gran)]
-        subsets_substs = [
-            superset_substs[s:s + gran] for s in range(0, len(superset), gran)
-        ]
-
-        # Note: As soon as one of the processed was able to reduce the input
-        # file we recompute the work_list with the updated expressions and same
-        # granularity.
-        restart = True
-        while restart:
-            restart = False
-            work_list = [(exprs, x, y) for x, y in zip(subsets, subsets_substs)]
-            for i, result in enumerate(
-                    pool.imap(_process_substitution, work_list, 1)):
-
-                reduced_exprs, nreduced, runtime = result
-
-                g_ntests += 1
-
-                if nreduced:
-                    exprs = reduced_exprs
-
-                    # Print current working set to file
-                    _print_exprs(g_args.outfile, exprs)
-
-                    nreduced_total += nreduced
-                    g_cur_runtime = runtime
-
-                    # Remove already substituted expressions
-                    subsets.pop(i)
-                    subsets_substs.pop(i)
-
-                    restart = True
-                    break
-
-                if options.args().verbosity >= 2:
-                    sys.stdout.write(
-                        "[ddSMT] granularity: {}, subset {} of {}, s-expressions: {}/{}\r"
-                        .format(gran, i, len(subsets), nexprs - nreduced_total,
-                                nexprs))
-
-        # Update superset and remove already substituted expressions
-        superset = [x for subset in subsets for x in subset]
-        superset_substs = [x for subset in subsets_substs for x in subset]
-        assert len(superset) == len(superset_substs)
-
-        gran = gran // 2
-
-    return exprs, nreduced_total
-
-
-class PassDeleteAssert:
-    def filter(self, x):
-        return smtlib.is_assert(x)
-
-    def subst(self, x):
-        return None
-
-
-def _reduce(exprs):
-
-    passes = [PassDeleteAssert()]
-
-    nreduced_total = 0
-    with Pool(g_args.nprocs) as pool:
-
-        # Delete commands
-        #exprs_filtered = exprs[:]
-        #exprs_substs = [None for x in exprs_filtered]
-        #exprs, nreduced = _process_substitutions(pool,exprs, exprs_filtered,
-        #                                         exprs_substs)
-        #nreduced_total += nreduced
-
-        for p in passes:
-            exprs_filtered = iters.filter_exprs(exprs, p.filter)
-            exprs_substs = list(map(p.subst, exprs_filtered))
-            exprs, nreduced = _process_substitutions(pool, exprs,
-                                                     exprs_filtered,
-                                                     exprs_substs)
-            nreduced_total += nreduced
-
-    return exprs, nreduced_total
-
-
 def ddsmt_main():
-    global g_args
-    global g_cur_runtime, g_cur_runtime_cc
-    global g_golden_run, g_golden_run_cc
-
-    g_args = options.args()
     setup_logging()
-
-    if not os.path.exists(g_args.infile):
-        raise DDSMTException("given input file does not exist")
-    if os.path.isdir(g_args.infile):
-        raise DDSMTException("given input file is a directory")
-    if not g_args.parser_test and not g_args.cmd:
-        raise DDSMTException("command missing")
+    check_options()
 
     logging.info("input file:   '{}'".format(options.args().infile))
     logging.info("output file:  '{}'".format(options.args().outfile))
@@ -235,7 +96,7 @@ def ddsmt_main():
     if options.args().cmd_cc:
         logging.info("command (cc): '{}'".format(options.args().cmd_cc))
 
-    ifilesize = os.path.getsize(g_args.infile)
+    ifilesize = os.path.getsize(options.args().infile)
 
     start_time = time.time()
     with open(options.args().infile, 'r') as infile:
@@ -256,12 +117,12 @@ def ddsmt_main():
     reduced_exprs, nreduced, ntests = ddnaive.reduce(exprs)
     end_time = time.time()
     if nreduced:
-        ofilesize = os.path.getsize(g_args.outfile)
+        ofilesize = os.path.getsize(options.args().outfile)
         nreduced_exprs = iters.count_exprs(reduced_exprs)
 
         logging.info("")
         logging.info("runtime:         {:.2f} s".format(end_time - start_time))
-        logging.info("tests:           {}".format(g_ntests))
+        logging.info("tests:           {}".format(ntests))
         logging.info("input file:")
         logging.info("  file size:     {} B".format(ifilesize))
         logging.info("  s-expressions: {}".format(nexprs))
@@ -277,12 +138,10 @@ def ddsmt_main():
 if __name__ == "__main__":
     try:
         ddsmt_main()
-    except DDSMTException as exc:
-        sys.exit(str(exc))
     except MemoryError:
         sys.exit("[ddsmt] memory exhausted")
     except KeyboardInterrupt:
         sys.exit("[ddsmt] interrupted")
-    finally:
-        _cleanup()
+    except Exception as e:
+        sys.exit(str(e))
     sys.exit(0)
