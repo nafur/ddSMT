@@ -1,6 +1,8 @@
 import argparse
 import os
 
+from utils import mutators
+
 def parse_options():
     """Configures the commandline parse and then parse the commandline options."""
 
@@ -15,7 +17,7 @@ def parse_options():
     ap.add_argument("-p",
                     dest="nprocs",
                     type=int,
-                    default=os.cpu_count(),
+                    default=1,
                     help="use nprocs parallel processes, default: {}".format(
                         os.cpu_count()))
     ap.add_argument("-c",
@@ -57,6 +59,9 @@ def parse_options():
                     dest="parser_test",
                     help="run ddSMT in parser test mode "\
                          "(parses only, does not require command argument)")
+    
+    mutators.collect_mutator_options(ap)
+    
     res = ap.parse_args()
 
     if res.cmd_cc:
@@ -72,3 +77,11 @@ def args():
     if __PARSED_ARGS is None:
         __PARSED_ARGS = parse_options()
     return __PARSED_ARGS
+
+def add_mutator_argument(argparser, name, default, help_msg):
+    dest = 'mutator_{}'.format(name.replace('-', '_'))
+    grp = argparser.add_mutually_exclusive_group()
+    grp.add_argument('--{}'.format(name), action = 'store_true', default = default,
+                     dest = dest, help = help_msg if not default else argparse.SUPPRESS)
+    grp.add_argument('--no-{}'.format(name), action = 'store_false', default = default,
+                     dest = dest, help = help_msg if default else argparse.SUPPRESS)

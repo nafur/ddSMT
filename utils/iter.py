@@ -1,11 +1,13 @@
 def dfs(exprs):
     """DFS traversal of s-expressions in exprs."""
-    visit = exprs[:]
+    visit = list(reversed(exprs))
     while visit:
         sexpr = visit.pop()
         if isinstance(sexpr, tuple):
             yield sexpr
             visit.extend(list(reversed(sexpr)))
+        else:
+            yield sexpr
 
 def dfs_postorder(exprs):
     """Postorder DFS traversal of s-expressions in exprs."""

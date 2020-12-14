@@ -34,9 +34,13 @@ from multiprocessing import Pool
 from subprocess import Popen, PIPE, TimeoutExpired
 from collections import namedtuple
 
-from utils import options
-from utils import tmpfiles
 from utils import checker
+from utils import ddmin
+from utils import ddnaive
+from utils import options
+from utils import parser
+from utils import tmpfiles
+from utils import smtlib
 from utils.subst import Substitution
 import utils.iter as iters
 import utils.smtlib as smtlib
@@ -53,6 +57,13 @@ g_golden_run = None
 g_golden_run_cc = None
 g_ntests = 0
 g_args = None
+
+
+#f = [('set-logic', 'QF_FP'), ('declare-fun', 'a', (), ('_', 'FloatingPoint', '53', '11')), ('assert', ('=', 'a', ('_', '+oo', '53', '11'))), ('check-sat',)]
+#s = Substitution()
+#s.add_global('FloatingPoint', None)
+#s.apply(f)
+#sys.exit(0)
 
 
 def setup_logging():
@@ -218,32 +229,31 @@ def ddsmt_main():
     if not g_args.parser_test and not g_args.cmd:
         raise DDSMTException("command missing")
 
-
-    logging.info("input file:   '{}'".format(g_args.infile))
-    logging.info("output file:  '{}'".format(g_args.outfile))
-    logging.info("command:      '{}'".format(" ".join(map(str, g_args.cmd))))
-    if g_args.cmd_cc:
-        logging.info("command (cc): '{}'".format(g_args.cmd_cc))
+    logging.info("input file:   '{}'".format(options.args().infile))
+    logging.info("output file:  '{}'".format(options.args().outfile))
+    logging.info("command:      '{}'".format(" ".join(map(str, options.args().cmd))))
+    if options.args().cmd_cc:
+        logging.info("command (cc): '{}'".format(options.args().cmd_cc))
 
     ifilesize = os.path.getsize(g_args.infile)
 
     start_time = time.time()
-    with open(g_args.infile, 'r') as infile:
-        exprs = list(smtlib.parse(infile.read()))
+    with open(options.args().infile, 'r') as infile:
+        exprs = list(parser.parse(infile.read()))
         nexprs = iters.count_exprs(exprs)
 
     logging.debug("")
     logging.debug("parsed {} s-expressions in {:.2f} seconds".format(
             nexprs, time.time() - start_time))
 
-    if g_args.parser_test:
-        _print_exprs(g_args.outfile, exprs)
+    if options.args().parser_test:
+        parser.print_exprs(options.args().outfile, exprs)
         return
 
     tmpfiles.copy_binaries()
     checker.do_golden_runs()
 
-    reduced_exprs, nreduced = _reduce(exprs)
+    reduced_exprs, nreduced, ntests = ddnaive.reduce(exprs)
     end_time = time.time()
     if nreduced:
         ofilesize = os.path.getsize(g_args.outfile)

@@ -1,9 +1,14 @@
 import collections
 import logging
 import subprocess
+import sys
 import time
 
-from . import options
+from utils import iter as iters
+from utils import options
+from utils import parser
+from utils.subst import Substitution
+from utils import tmpfiles
 
 RunInfo = collections.namedtuple("RunInfo", ["exit", "out", "err", "runtime"])
 
@@ -51,20 +56,44 @@ def matches_golden(golden, run, match_out, match_err):
 
 def check(filename):
     """Check whether the given file behaves as the original input."""
-    ri = execute(options.args().cmd, filename, __GOLDEN.runtime)
+    ri = execute(options.args().cmd, filename, options.args().timeout)
     if not matches_golden(__GOLDEN, ri,
                           options.args().match_out,
                           options.args().match_err):
         return False
 
     if options.args().cmd_cc:
-        ri = execute(options.args().cmd_cc, filename, __GOLDEN_CC.runtime)
+        ri = execute(options.args().cmd_cc, filename, options.args().timeout_cc)
         if not matches_golden(__GOLDEN_CC, ri,
                               options.args().match_out_cc,
                               options.args().match_err_cc):
             return False
 
     return True
+
+def check_exprs(exprs):
+    tmpfile = tmpfiles.get_tmp_filename()
+    parser.print_exprs(tmpfile, exprs)
+
+    runtime = 0
+    start = time.time()
+    if check(tmpfile):
+        runtime = time.time() - start
+        return True, runtime
+
+    return False, 0
+
+def check_substitution(exprs, subst):
+    test_exprs = subst.apply(exprs)
+
+    success, runtime = check_exprs(test_exprs)
+
+    nreduced = 0
+    if success:
+        nreduced = iters.count_exprs(exprs) - iters.count_exprs(test_exprs)
+        return nreduced, test_exprs, runtime
+
+    return 0, [], 0
 
 
 def do_golden_runs():
@@ -87,6 +116,20 @@ def do_golden_runs():
         logging.info("match (stdout): '{}'".format(options.args().match_out))
     if options.args().match_err:
         logging.info("match (stderr): '{}'".format(options.args().match_err))
+    
+    if options.args().match_out:
+        if options.args().match_out not in __GOLDEN.out:
+            logging.error('Expected stdout to match "{}"'.format(options.args().match_out))
+            sys.exit(1)
+
+    if options.args().match_err:
+        if options.args().match_err not in __GOLDEN.err:
+            logging.error('Expected stderr to match "{}"'.format(options.args().match_err))
+            sys.exit(1)
+
+    if options.args().timeout is None:
+        options.args().timeout = (__GOLDEN.runtime + 1) * 1.5
+        logging.info("timeout: {}".format(options.args().timeout))
 
     if options.args().cmd_cc:
         __GOLDEN_CC = execute(options.args().cmd_cc,
@@ -104,3 +147,7 @@ def do_golden_runs():
         if options.args().match_err_cc:
             logging.info("match (cc) (stderr): '{}'".format(
                 options.args().match_err_cc))
+        
+        if options.args().timeout_cc is None:
+            options.args().timeout_cc = (__GOLDEN_CC.runtime + 1) * 1.5
+            logging.info("timeout (cc): {}".format(options.args().timeout_cc))
