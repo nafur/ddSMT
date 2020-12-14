@@ -9,10 +9,10 @@ from utils import parser
 from utils.subst import Substitution
 from utils import tmpfiles
 
-from utils.mutators import *
+from utils import mutators
 
 def ddmin_passes():
-    return [PassDeleteAssert()]
+    return mutators.collect_mutators(options.args())
 
 
 def _process_substitution(tup):
@@ -22,13 +22,14 @@ def _process_substitution(tup):
     for x, y in zip(subset, substs):
         subst.add_local(x, y)
 
-    return checker.check_substitution(exprs)
+    return checker.check_substitution(exprs, subst)
 
 
 def _process_substitutions(pool, exprs, superset, superset_substs):
     assert len(superset) == len(superset_substs)
 
     ntests = 0
+    nreduced_total = 0
     nexprs = iters.count_exprs(exprs)
 
     gran = len(superset)
@@ -56,6 +57,8 @@ def _process_substitutions(pool, exprs, superset, superset_substs):
 
                 if nreduced:
                     exprs = reduced_exprs
+
+                    nreduced_total += nreduced
 
                     # Print current working set to file
                     parser.print_exprs(options.args().outfile, exprs)
@@ -88,7 +91,7 @@ def reduce(exprs):
     passes = ddmin_passes()
 
     ntests = 0 
-    with Pool(options.args().nprocs) as pool:
+    with Pool(options.args().max_threads) as pool:
 
         # Delete commands
         #exprs_filtered = exprs[:]
@@ -99,7 +102,7 @@ def reduce(exprs):
 
         for p in passes:
             exprs_filtered = iters.filter_exprs(exprs, p.filter)
-            exprs_substs = list(map(p.subst, exprs_filtered))
+            exprs_substs = list(map(lambda x: None if x == [] else x[0], map(p.mutations, exprs_filtered)))
             exprs, nt = _process_substitutions(pool, exprs,
                                                      exprs_filtered,
                                                      exprs_substs)

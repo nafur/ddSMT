@@ -52,7 +52,6 @@ class Substitution:
                 args[-1].append(tuple(children))
             else:
                 # Apply substitution if given
-                #print("Check if {} / {} is in subst".format(id(expr), expr))
                 if self.is_subst(expr):
                     expr = self.get_subst(expr)
                     # Expressions substituted by None will be deleted
