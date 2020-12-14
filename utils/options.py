@@ -19,6 +19,7 @@ def parse_options():
     ap.add_argument("-c",
                     dest="cmd_cc",
                     help="cross check command")
+    ap.add_argument('--memout', type = int, metavar = 'megabytes', default = 0, help = 'memout for individual checks')
     ap.add_argument("-t",
                     dest="timeout",
                     type=float,

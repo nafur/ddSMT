@@ -43,7 +43,6 @@ from utils import parser
 from utils import tmpfiles
 from utils import smtlib
 from utils.subst import Substitution
-import utils.iter as iters
 import utils.smtlib as smtlib
 
 
@@ -100,14 +99,14 @@ def ddsmt_main():
 
     start_time = time.time()
     with open(options.args().infile, 'r') as infile:
-        exprs = list(parser.parse(infile.read()))
-        nexprs = iters.count_exprs(exprs)
+        exprs = list(parser.parse_smtlib(infile.read()))
+        nexprs = smtlib.node_count(exprs)
 
     logging.debug("parsed {} s-expressions in {:.2f} seconds".format(
             nexprs, time.time() - start_time))
 
     if options.args().parser_test:
-        parser.print_exprs(options.args().outfile, exprs)
+        parser.write_smtlib_to_file(options.args().outfile, exprs)
         return
 
     tmpfiles.copy_binaries()
@@ -120,7 +119,7 @@ def ddsmt_main():
     end_time = time.time()
     if reduced_exprs != exprs:
         ofilesize = os.path.getsize(options.args().outfile)
-        nreduced_exprs = iters.count_exprs(reduced_exprs)
+        nreduced_exprs = smtlib.node_count(reduced_exprs)
 
         logging.info("")
         logging.info("runtime:         {:.2f} s".format(end_time - start_time))

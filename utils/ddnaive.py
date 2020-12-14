@@ -5,7 +5,6 @@ import sys
 import time
 
 from utils import checker
-from utils import iter as iters
 from utils import options
 from utils import parser
 from utils import subst
@@ -45,7 +44,7 @@ class MutationGenerator:
 
     def generate_mutations(self, original, skip):
         """A generator that produces all possible mutations from the given original."""
-        for node in iters.dfs(original):
+        for node in smtlib.dfs(original):
             self.__node_count += 1
             if skip < self.__node_count:
                 for task in self.__mutate_node(node, original):
@@ -80,7 +79,7 @@ def reduce(exprs):
                     exprs = task.exprs
                     skip = task.nodeid - 1
                     fresh_run = False
-                    parser.print_exprs(options.args().outfile, exprs)
+                    parser.write_smtlib_to_file(options.args().outfile, exprs)
                     pool.close()
                     break
         pool.join()

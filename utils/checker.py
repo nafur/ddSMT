@@ -1,13 +1,14 @@
 import collections
 import logging
+import resource
 import subprocess
 import sys
 import time
 
-from utils import iter as iters
 from utils import options
 from utils import parser
 from utils.subst import Substitution
+from utils import smtlib
 from utils import tmpfiles
 
 RunInfo = collections.namedtuple("RunInfo", ["exit", "out", "err", "runtime"])
@@ -15,11 +16,16 @@ RunInfo = collections.namedtuple("RunInfo", ["exit", "out", "err", "runtime"])
 __GOLDEN = None
 __GOLDEN_CC = None
 
+def limit_memory():
+    """Apply memory limit given by :code:`--memout`."""
+    if options.args().memout != 0:
+        resource.setrlimit(resource.RLIMIT_AS, (options.args().memout * 1024 * 1024, resource.RLIM_INFINITY))
+
 def execute(cmd, filename, timeout):
     """Execute the command on the file with a timeout."""
     proc = subprocess.Popen(cmd + [filename],
                             stdout=subprocess.PIPE,
-                            stderr=subprocess.PIPE)
+                            stderr=subprocess.PIPE, preexec_fn = limit_memory)
     try:
         start = time.time()
         out, err = proc.communicate(timeout=timeout)
@@ -72,7 +78,7 @@ def check(filename):
 
 def check_exprs(exprs):
     tmpfile = tmpfiles.get_tmp_filename()
-    parser.print_exprs(tmpfile, exprs)
+    parser.write_smtlib_to_file(tmpfile, exprs)
 
     runtime = 0
     start = time.time()
@@ -89,7 +95,7 @@ def check_substitution(exprs, subst):
 
     nreduced = 0
     if success:
-        nreduced = iters.count_exprs(exprs) - iters.count_exprs(test_exprs)
+        nreduced = smtlib.node_count(exprs) - smtlib.node_count(test_exprs)
         return nreduced, test_exprs, runtime
 
     return 0, [], 0

@@ -1,7 +1,8 @@
 import re
 
-from utils import iter as iters
+from utils import subst
 
+# global lookups for defined functions and variables
 __defined_functions = {}
 __defined_variables = {}
 
@@ -32,10 +33,46 @@ def collect_information(exprs):
             assert not is_leaf(cmd[2])
             if not is_leaf(cmd[3]):
                 continue
-            __defined_functions[cmd[1]] = lambda args, cmd=cmd: substitute(
+            __defined_functions[cmd[1]] = lambda args, cmd=cmd: subst.subs_global(
                 cmd[4],
                 {cmd[2][i][0]: args[i] for i in range(len(args))}
             )
+
+##### Generic utilities
+def dfs(exprs):
+    """DFS traversal of s-expressions in exprs."""
+    visit = list(reversed(exprs))
+    while visit:
+        sexpr = visit.pop()
+        if isinstance(sexpr, tuple):
+            yield sexpr
+            visit.extend(list(reversed(sexpr)))
+        else:
+            yield sexpr
+
+def dfs_postorder(exprs):
+    """Postorder DFS traversal of s-expressions in exprs."""
+    visit = [(x, False) for x in exprs]
+    while visit:
+        sexpr, visited = visit.pop()
+        if not isinstance(sexpr, tuple):
+            continue
+
+        if visited:
+            yield sexpr
+        else:
+            visit.append((sexpr, True))
+            visit.extend((x, False) for x in reversed(sexpr))
+
+
+def node_count(node):
+    return len(list(dfs(node)))
+
+def filter_exprs(exprs, filter_func):
+    """Filter s-expressions based on filter_func."""
+    for expr in dfs(exprs):
+        if filter_func(expr):
+            yield expr
 
 def has_type(node):
     """Checks whether :code:`node` was defined to have a certain type.
@@ -55,9 +92,6 @@ def get_variables_with_type(var_type):
         v for v in __defined_variables
         if __defined_variables[v] == var_type
     ]
-
-def node_count(node):
-    return iters.count_exprs(node)
 
 ## Semantic testers
 

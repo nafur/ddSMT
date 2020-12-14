@@ -3,13 +3,12 @@ import sys
 import time
 
 from utils import checker
-from utils import iter as iters
 from utils import options
 from utils import parser
 from utils.subst import Substitution
-from utils import tmpfiles
-
 from utils import mutators
+from utils import smtlib
+from utils import tmpfiles
 
 def ddmin_passes():
     return mutators.collect_mutators(options.args())
@@ -30,7 +29,7 @@ def _process_substitutions(pool, exprs, superset, superset_substs):
 
     ntests = 0
     nreduced_total = 0
-    nexprs = iters.count_exprs(exprs)
+    nexprs = smtlib.node_count(exprs)
 
     gran = len(superset)
     while gran > 0:
@@ -61,7 +60,7 @@ def _process_substitutions(pool, exprs, superset, superset_substs):
                     nreduced_total += nreduced
 
                     # Print current working set to file
-                    parser.print_exprs(options.args().outfile, exprs)
+                    parser.write_smtlib_to_file(options.args().outfile, exprs)
 
                     # Remove already substituted expressions
                     subsets.pop(i)
@@ -101,7 +100,7 @@ def reduce(exprs):
         #nreduced_total += nreduced
 
         for p in passes:
-            exprs_filtered = iters.filter_exprs(exprs, p.filter)
+            exprs_filtered = list(smtlib.filter_exprs(exprs, p.filter))
             exprs_substs = list(map(lambda x: None if x == [] else x[0], map(p.mutations, exprs_filtered)))
             exprs, nt = _process_substitutions(pool, exprs,
                                                      exprs_filtered,

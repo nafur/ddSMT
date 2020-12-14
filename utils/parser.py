@@ -1,5 +1,5 @@
 
-def parse(text):
+def parse_smtlib(text):
     """Convert SMT-LIB input to list of (nested) Python tuples.
 
         A tuple represents an s-expression in SMT-LIB. This generator yields
@@ -95,7 +95,7 @@ def parse(text):
 
 ## Printing
 
-def to_str_iter(exprs):
+def render_smtlib(exprs):
     """Convert `exprs` to SMT-LIB compliant string.
 
 
@@ -125,21 +125,6 @@ def to_str_iter(exprs):
 
     return '\n'.join(args)
 
-def _to_str_rec(exprs):
-    if isinstance(exprs, tuple):
-        return '({})'.format(' '.join(map(_to_str_rec, exprs)))
-    return exprs
-
-def to_str_rec(exprs):
-    """Convert `exprs` to SMT-LIB compliant string.
-
-       Recursive version, slightly faster than the iterative one, but may run
-       into recursion limit issues for deeply nested s-expressions.
-    """
-    return '\n'.join(map(_to_str_rec, exprs))
-
-
-def print_exprs(filename, exprs):
-    with open(filename, 'w') as outfile:
-        outfile.write(to_str_iter(exprs))
-        outfile.write('\n')
+def write_smtlib_to_file(filename, exprs):
+    """Writes a sequence of nodes to a file."""
+    open(filename, 'w').write(render_smtlib(exprs))
