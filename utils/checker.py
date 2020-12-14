@@ -14,10 +14,12 @@ RunInfo = collections.namedtuple("RunInfo", ["exit", "out", "err", "runtime"])
 
 __GOLDEN = None
 __GOLDEN_CC = None
-
+CHECKS = 0
 
 def execute(cmd, filename, timeout):
     """Execute the command on the file with a timeout."""
+    global CHECKS
+    CHECKS += 1
     proc = subprocess.Popen(cmd + [filename],
                             stdout=subprocess.PIPE,
                             stderr=subprocess.PIPE)
@@ -108,14 +110,14 @@ def do_golden_runs():
 
     __GOLDEN = execute(options.args().cmd, options.args().infile, None)
 
-    logging.info("golden exit:    {}".format(__GOLDEN.exit))
-    logging.info("golden err:     {}".format(repr(__GOLDEN.err)))
-    logging.info("golden out:     {}".format(repr(__GOLDEN.out)))
-    logging.info("golden runtime: {0: .2f} seconds".format(__GOLDEN.runtime))
+    logging.info('golden exit: {}'.format(__GOLDEN.exit))
+    logging.info('golden err:\n{}'.format(__GOLDEN.err))
+    logging.info('golden out:\n{}'.format(__GOLDEN.out))
+    logging.info('golden runtime: {0: .2f} seconds'.format(__GOLDEN.runtime))
     if options.args().match_out:
-        logging.info("match (stdout): '{}'".format(options.args().match_out))
+        logging.info('match (stdout): "{}"'.format(options.args().match_out))
     if options.args().match_err:
-        logging.info("match (stderr): '{}'".format(options.args().match_err))
+        logging.info('match (stderr): "{}"'.format(options.args().match_err))
     
     if options.args().match_out:
         if options.args().match_out not in __GOLDEN.out:
@@ -137,8 +139,8 @@ def do_golden_runs():
 
         logging.info("")
         logging.info("golden exit (cc): {}".format(__GOLDEN_CC.exit))
-        logging.info("golden err (cc): '{}'".format(__GOLDEN_CC.err))
-        logging.info("golden out (cc): '{}'".format(__GOLDEN_CC.out))
+        logging.info("golden err (cc):\n{}".format(__GOLDEN_CC.err))
+        logging.info("golden out (cc):\n{}".format(__GOLDEN_CC.out))
         logging.info("golden runtime (cc): {0: .2f} seconds".format(
             __GOLDEN_CC.runtime))
         if options.args().match_out_cc:

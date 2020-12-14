@@ -103,7 +103,6 @@ def ddsmt_main():
         exprs = list(parser.parse(infile.read()))
         nexprs = iters.count_exprs(exprs)
 
-    logging.debug("")
     logging.debug("parsed {} s-expressions in {:.2f} seconds".format(
             nexprs, time.time() - start_time))
 
@@ -114,15 +113,15 @@ def ddsmt_main():
     tmpfiles.copy_binaries()
     checker.do_golden_runs()
 
-    reduced_exprs, nreduced, ntests = ddnaive.reduce(exprs)
+    reduced_exprs, = ddnaive.reduce(exprs)
     end_time = time.time()
-    if nreduced:
+    if reduced_exprs != exprs:
         ofilesize = os.path.getsize(options.args().outfile)
         nreduced_exprs = iters.count_exprs(reduced_exprs)
 
         logging.info("")
         logging.info("runtime:         {:.2f} s".format(end_time - start_time))
-        logging.info("tests:           {}".format(ntests))
+        logging.info("tests:           {}".format(checker.CHECKS))
         logging.info("input file:")
         logging.info("  file size:     {} B".format(ifilesize))
         logging.info("  s-expressions: {}".format(nexprs))

@@ -1,4 +1,5 @@
 import collections
+import logging
 from multiprocessing import Pool
 import sys
 import time
@@ -16,7 +17,6 @@ Mutation = collections.namedtuple('Mutation', ['nodeid', 'name', 'exprs'])
 
 def ddnaive_passes():
     return mutators.collect_mutators(options.args())
-
 
 class MutationGenerator:
     def __init__(self, skip, mutators):
@@ -42,41 +42,48 @@ class MutationGenerator:
                 pass
 
 
-    def generate_mutations(self, original):
+    def generate_mutations(self, original, skip):
         """A generator that produces all possible mutations from the given original."""
         for node in iters.dfs(original):
-            for subst in self.__mutate_node(node, original):
-                yield original, subst
+            self.__node_count += 1
+            if skip < self.__node_count:
+                for subst in self.__mutate_node(node, original):
+                    yield original, subst
 
 def _check(task):
     success, runtime = checker.check_exprs(task[1].exprs)
-    if success:
-        nreduced = iters.count_exprs(task[0]) - iters.count_exprs(task[1].exprs)
-        return nreduced, task[1].exprs, runtime
-    return 0, [], 0
+    return success, task[1], runtime
 
 def reduce(exprs):
-
     passes = ddnaive_passes()
     smtlib.collect_information(exprs)
 
-    mg = MutationGenerator(0, passes)
+    skip = 0
+    fresh_run = True
 
-    nreduced = 0
-    ntests = 0 
-    with Pool(options.args().max_threads) as pool:
-
-        reduction = True
-        while reduction:
-            reduction = False
-            for result in pool.imap(_check, mg.generate_mutations(exprs)):
-                ntests += 1
-                nred, exp, runtime = result
-                if nred > 0:
-                    nreduced += nred
-                    exprs = exp
-                    parser.print_exprs(options.args().outfile, exprs)
+    while True:
+        reduction = False
+        with Pool(options.args().max_threads) as pool:
+            mg = MutationGenerator(skip, passes)
+            for result in pool.imap(_check, mg.generate_mutations(exprs, skip)):
+                success, task, runtime = result
+                if success:
+                    logging.info('Found simplification: {}'.format(task.name))
                     reduction = True
+                    exprs = task.exprs
+                    skip = task.nodeid - 1
+                    fresh_run = False
+                    parser.print_exprs(options.args().outfile, exprs)
+                    pool.close()
                     break
+        pool.join()
+        if not reduction:
+            logging.info('No further simplification found')
+            if fresh_run:
+                break
+            logging.info('Starting over')
+            skip = 0
+            reduction = True
+            fresh_run = True
 
-    return exprs, nreduced, ntests
+    return exprs
