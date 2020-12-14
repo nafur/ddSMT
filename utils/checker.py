@@ -14,12 +14,9 @@ RunInfo = collections.namedtuple("RunInfo", ["exit", "out", "err", "runtime"])
 
 __GOLDEN = None
 __GOLDEN_CC = None
-CHECKS = 0
 
 def execute(cmd, filename, timeout):
     """Execute the command on the file with a timeout."""
-    global CHECKS
-    CHECKS += 1
     proc = subprocess.Popen(cmd + [filename],
                             stdout=subprocess.PIPE,
                             stderr=subprocess.PIPE)

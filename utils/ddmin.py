@@ -28,6 +28,7 @@ def _process_substitution(tup):
 def _process_substitutions(pool, exprs, superset, superset_substs):
     assert len(superset) == len(superset_substs)
 
+    ntests = 0
     nexprs = iters.count_exprs(exprs)
 
     gran = len(superset)
@@ -51,6 +52,7 @@ def _process_substitutions(pool, exprs, superset, superset_substs):
 
                 nreduced, reduced_exprs, runtime = result
 
+                ntests += 1
 
                 if nreduced:
                     exprs = reduced_exprs
@@ -78,13 +80,14 @@ def _process_substitutions(pool, exprs, superset, superset_substs):
 
         gran = gran // 2
 
-    return exprs
+    return exprs, ntests
 
 
 def reduce(exprs):
 
     passes = ddmin_passes()
 
+    ntests = 0 
     with Pool(options.args().nprocs) as pool:
 
         # Delete commands
@@ -100,5 +103,6 @@ def reduce(exprs):
             exprs, nt = _process_substitutions(pool, exprs,
                                                      exprs_filtered,
                                                      exprs_substs)
+            ntests += nt
 
-    return exprs
+    return exprs, ntests

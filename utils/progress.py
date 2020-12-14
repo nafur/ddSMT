@@ -12,6 +12,6 @@ def start(max):
 def update(newval = None):
     global __BAR
     if newval is not None:
-        __BAR.update(newval)
+        __BAR.update(min(newval, __BAR.maxval))
     else:
         __BAR.update(__BAR.currval + 1)

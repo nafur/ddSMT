@@ -48,8 +48,8 @@ class MutationGenerator:
         for node in iters.dfs(original):
             self.__node_count += 1
             if skip < self.__node_count:
-                for subst in self.__mutate_node(node, original):
-                    yield original, subst
+                for task in self.__mutate_node(node, original):
+                    yield original, task
 
 def _check(task):
     return *checker.check_exprs(task[1].exprs), task[1]
@@ -58,21 +58,24 @@ def reduce(exprs):
     passes = ddnaive_passes()
     smtlib.collect_information(exprs)
 
+    nchecks = 0
     skip = 0
     fresh_run = True
 
     while True:
         reduction = False
+        cnt = smtlib.node_count(exprs)
+        progress.start(cnt)
+        progress.update(min(cnt, skip))
         with Pool(options.args().max_threads) as pool:
-            progress.start(smtlib.node_count(exprs))
-            progress.update(skip)
             mg = MutationGenerator(skip, passes)
             for result in pool.imap(_check, mg.generate_mutations(exprs, skip)):
-                progress.update()
+                nchecks += 1
                 success, runtime, task = result
+                progress.update(task.nodeid)
                 if success:
                     sys.stdout.write('\n')
-                    logging.info('Found simplification: {}'.format(task.name))
+                    logging.info('Found simplification: {} ({:.2f}s)'.format(task.name, runtime))
                     reduction = True
                     exprs = task.exprs
                     skip = task.nodeid - 1
@@ -90,4 +93,4 @@ def reduce(exprs):
             skip = 0
             fresh_run = True
 
-    return exprs
+    return exprs, nchecks

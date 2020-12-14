@@ -113,7 +113,7 @@ def ddsmt_main():
     tmpfiles.copy_binaries()
     checker.do_golden_runs()
 
-    reduced_exprs, = ddnaive.reduce(exprs)
+    reduced_exprs,ntests = ddnaive.reduce(exprs)
     end_time = time.time()
     if reduced_exprs != exprs:
         ofilesize = os.path.getsize(options.args().outfile)
@@ -121,7 +121,7 @@ def ddsmt_main():
 
         logging.info("")
         logging.info("runtime:         {:.2f} s".format(end_time - start_time))
-        logging.info("tests:           {}".format(checker.CHECKS))
+        logging.info("tests:           {}".format(ntests))
         logging.info("input file:")
         logging.info("  file size:     {} B".format(ifilesize))
         logging.info("  s-expressions: {}".format(nexprs))
