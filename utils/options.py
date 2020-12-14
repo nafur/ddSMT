@@ -34,6 +34,10 @@ def parse_options():
                     dest="verbosity",
                     default=0,
                     help="increase verbosity")
+    ap.add_argument('--strategy',
+                    choices=['ddmin', 'naive'],
+                    default='ddmin',
+                    help='minimization strategy')
     ap.add_argument("--match-err",
                     dest="match_err",
                     help="match string in stderr to identify "\
@@ -55,9 +59,9 @@ def parse_options():
                     dest="parser_test",
                     help="run ddSMT in parser test mode "\
                          "(parses only, does not require command argument)")
-    
+
     mutators.collect_mutator_options(ap)
-    
+
     res = ap.parse_args()
 
     if res.cmd_cc:

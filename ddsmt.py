@@ -113,7 +113,10 @@ def ddsmt_main():
     tmpfiles.copy_binaries()
     checker.do_golden_runs()
 
-    reduced_exprs,ntests = ddnaive.reduce(exprs)
+    if options.args().strategy == 'ddmin':
+        reduced_exprs,ntests = ddmin.reduce(exprs)
+    elif options.args().strategy == 'naive':
+        reduced_exprs,ntests = ddnaive.reduce(exprs)
     end_time = time.time()
     if reduced_exprs != exprs:
         ofilesize = os.path.getsize(options.args().outfile)
