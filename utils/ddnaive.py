@@ -12,6 +12,7 @@ from utils import subst
 from utils import smtlib
 from utils import tmpfiles
 from utils import mutators
+from utils import progress
 
 Mutation = collections.namedtuple('Mutation', ['nodeid', 'name', 'exprs'])
 
@@ -51,8 +52,7 @@ class MutationGenerator:
                     yield original, subst
 
 def _check(task):
-    success, runtime = checker.check_exprs(task[1].exprs)
-    return success, task[1], runtime
+    return *checker.check_exprs(task[1].exprs), task[1]
 
 def reduce(exprs):
     passes = ddnaive_passes()
@@ -64,10 +64,14 @@ def reduce(exprs):
     while True:
         reduction = False
         with Pool(options.args().max_threads) as pool:
+            progress.start(smtlib.node_count(exprs))
+            progress.update(skip)
             mg = MutationGenerator(skip, passes)
             for result in pool.imap(_check, mg.generate_mutations(exprs, skip)):
-                success, task, runtime = result
+                progress.update()
+                success, runtime, task = result
                 if success:
+                    sys.stdout.write('\n')
                     logging.info('Found simplification: {}'.format(task.name))
                     reduction = True
                     exprs = task.exprs
@@ -78,12 +82,12 @@ def reduce(exprs):
                     break
         pool.join()
         if not reduction:
+            sys.stdout.write('\n')
             logging.info('No further simplification found')
             if fresh_run:
                 break
             logging.info('Starting over')
             skip = 0
-            reduction = True
             fresh_run = True
 
     return exprs
