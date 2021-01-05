@@ -93,6 +93,10 @@ def reduce(exprs):
     with Pool(options.args().max_threads) as pool:
 
         for p in passes:
+            if not hasattr(p, 'filter'):
+                continue
+            if not hasattr(p, 'mutations'):
+                continue
             exprs_filtered = list(smtlib.filter_exprs(exprs, p.filter))
             exprs_substs = list(
                 map(lambda x: None if x == [] else x[0],
