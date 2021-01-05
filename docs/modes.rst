@@ -11,7 +11,7 @@ This percentage can be specified with ``--aggressiveness``.
 
 Beautify
 --------------
-With ``--mode-beautify`` additional mutators are enabled that merely make the output nices, but (most probably) do not change solver behavior.
+With ``--mode-beautify`` additional mutators are enabled that merely make the output nicer, but (most probably) do not change solver behavior.
 Depending on the input, this may trigger quite some additional simplifications and should probably one be enabled in an additional post-processing run.
 
 Let elimination
