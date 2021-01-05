@@ -1,3 +1,10 @@
+[![GitHub Workflow Status](https://img.shields.io/github/workflow/status/nafur/ddSMT/main)](https://github.com/nafur/ddSMT/actions)
+[![Read the Docs](https://img.shields.io/readthedocs/ddsmt)](https://ddsmt.readthedocs.io/)
+[![PyPI](https://img.shields.io/pypi/v/ddsmt)](https://pypi.org/project/ddSMT/)
+![PyPI - Python Version](https://img.shields.io/pypi/pyversions/ddSMT)
+[![PyPI - License](https://img.shields.io/pypi/l/ddSMT)](https://github.com/nafur/ddSMT/blob/master/LICENSE)
+
+
  ddSMT
 ===============================================================================
 
