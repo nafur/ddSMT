@@ -135,8 +135,7 @@ def ddsmt_main():
     else:
         logging.warning("unable to minimize input file")
 
-
-if __name__ == "__main__":
+def main():
     try:
         ddsmt_main()
     except MemoryError:
@@ -146,3 +145,6 @@ if __name__ == "__main__":
     except Exception as e:
         sys.exit(str(e))
     sys.exit(0)
+
+if __name__ == "__main__":
+    main()
