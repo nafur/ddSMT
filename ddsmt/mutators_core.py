@@ -151,18 +151,18 @@ def collect_mutator_options(argparser):
 def collect_mutators(args):
     res = []
     if args.mutator_core:
-        #if args.mutator_top_level_binary_reduction:
-        #    res.append(TopLevelBinaryReduction())
+        if args.mutator_top_level_binary_reduction:
+            res.append(TopLevelBinaryReduction())
         if args.mutator_erase_children:
             res.append(EraseChildren())
-        #if args.mutator_constants:
-        #    res.append(Constants())
-        #if args.mutator_merge_children:
-        #    res.append(MergeWithChildren())
-        #if args.mutator_replace_by_variable:
-        #    res.append(ReplaceByVariable())
-        #if args.mutator_sort_children:
-        #    res.append(SortChildren())
-        #if args.mutator_substitute_children:
-        #    res.append(SubstituteChildren())
+        if args.mutator_constants:
+            res.append(Constants())
+        if args.mutator_merge_children:
+            res.append(MergeWithChildren())
+        if args.mutator_replace_by_variable:
+            res.append(ReplaceByVariable())
+        if args.mutator_sort_children:
+            res.append(SortChildren())
+        if args.mutator_substitute_children:
+            res.append(SubstituteChildren())
     return res

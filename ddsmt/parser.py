@@ -93,14 +93,8 @@ def parse_smtlib(text):
                 yield token
 
 
-## Printing
-
 def render_smtlib(exprs):
-    """Convert `exprs` to SMT-LIB compliant string.
-
-
-       Iterative version.
-    """
+    """Convert :code:`exprs` to an SMT-LIBv compliant string."""
     if isinstance(exprs, tuple):
         visit = [(exprs, False)]
     else:

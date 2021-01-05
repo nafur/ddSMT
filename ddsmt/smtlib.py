@@ -38,7 +38,7 @@ def collect_information(exprs):
                 {cmd[2][i][0]: args[i] for i in range(len(args))}
             )
 
-##### Generic utilities
+# Generic utilities
 def dfs(exprs):
     """DFS traversal of s-expressions in exprs."""
     visit = list(reversed(exprs))
@@ -93,7 +93,7 @@ def get_variables_with_type(var_type):
         if __defined_variables[v] == var_type
     ]
 
-## Semantic testers
+# Semantic testers
 
 def is_leaf(node):
     """Checks whether the :code:`node` is a leaf node."""
