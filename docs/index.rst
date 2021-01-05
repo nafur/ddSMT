@@ -12,3 +12,5 @@ ddSMT is free software released under the GPLv3. You should have received a copy
    :maxdepth: 2
 
    installation
+   usage
+   modes
