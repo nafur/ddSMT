@@ -82,7 +82,7 @@ class SortChildren:
 
     def mutations(self, node):
         """Return :code:`sorted(node, key = node_count)`."""
-        s = sorted(node, key=node_count)
+        s = tuple(sorted(node, key=node_count))
         if s != node:
             return [s]
         return []
@@ -97,7 +97,7 @@ class SubstituteChildren:
         return not is_leaf(node) and not is_operator(node, 'let')
 
     def mutations(self, node):
-        return node[1:]
+        return list(node[1:])
 
     def __str__(self):
         return 'substitute with child'
