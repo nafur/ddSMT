@@ -1,8 +1,8 @@
 import argparse
 
-from utils import argparsemod
-from utils import mutators
-from utils import version
+from . import argparsemod
+from . import mutators
+from . import version
 
 class CustomFormatter(argparse.ArgumentDefaultsHelpFormatter, argparse.HelpFormatter):
     """A custom formatter for printing the commandline help.

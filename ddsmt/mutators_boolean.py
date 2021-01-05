@@ -1,5 +1,5 @@
-from utils import options
-from utils.smtlib import *
+from . import options
+from .smtlib import *
 
 NAME = 'boolean'
 MUTATORS = ['de-morgan', 'double-negations', 'eliminate-false-eq', 'eliminate-implications', 'negate-quant']

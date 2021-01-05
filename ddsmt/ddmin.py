@@ -2,13 +2,13 @@ from multiprocessing import Pool
 import sys
 import time
 
-from utils import checker
-from utils import options
-from utils import parser
-from utils.subst import Substitution
-from utils import mutators
-from utils import smtlib
-from utils import tmpfiles
+from . import checker
+from . import options
+from . import parser
+from .subst import Substitution
+from . import mutators
+from . import smtlib
+from . import tmpfiles
 
 def ddmin_passes():
     return mutators.collect_mutators(options.args())

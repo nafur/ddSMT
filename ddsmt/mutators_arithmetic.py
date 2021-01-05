@@ -1,5 +1,5 @@
-from utils import options
-from utils.smtlib import *
+from . import options
+from .smtlib import *
 
 NAME = 'arithmetic'
 MUTATORS = ['arith-constants', 'arith-negate-relations', 'split-nary-relations', 'strengthen-relations']

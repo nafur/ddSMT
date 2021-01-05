@@ -35,15 +35,14 @@ from multiprocessing import Pool
 from subprocess import Popen, PIPE, TimeoutExpired
 from collections import namedtuple
 
-from utils import checker
-from utils import ddmin
-from utils import ddnaive
-from utils import options
-from utils import parser
-from utils import tmpfiles
-from utils import smtlib
-from utils.subst import Substitution
-import utils.smtlib as smtlib
+from . import checker
+from . import ddmin
+from . import ddnaive
+from . import options
+from . import parser
+from . import tmpfiles
+from . import smtlib
+from .subst import Substitution
 
 
 def check_options():

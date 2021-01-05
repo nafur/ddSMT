@@ -1,11 +1,11 @@
 import argparse
 
-from utils import mutators_arithmetic
-from utils import mutators_bitvectors
-from utils import mutators_boolean
-from utils import mutators_core
-from utils import mutators_smtlib
-from utils import mutators_strings
+from . import mutators_arithmetic
+from . import mutators_bitvectors
+from . import mutators_boolean
+from . import mutators_core
+from . import mutators_smtlib
+from . import mutators_strings
 
 def disable(namespace, option):
     setattr(namespace, 'mutator_{}'.format(option.replace('-', '_')), False)

@@ -6,6 +6,6 @@ import sys
 __root_dir = os.path.join(os.path.dirname(os.path.realpath(__file__)), '..')
 sys.path.insert(0, __root_dir)
 
-import ddsmt
+from ddsmt import cli
 
-ddsmt.main()
+cli.main()

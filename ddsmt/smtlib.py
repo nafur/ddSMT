@@ -1,6 +1,6 @@
 import re
 
-from utils import subst
+from . import subst
 
 # global lookups for defined functions and variables
 __defined_functions = {}
