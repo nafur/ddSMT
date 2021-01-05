@@ -8,7 +8,7 @@ import sys
 __root_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..')
 sys.path.insert(0, __root_dir)
 
-import utils.version
+import ddsmt.version
 
 # make sure we can see the last tag
 subprocess.call(['git', 'fetch', '--unshallow'])
@@ -17,8 +17,8 @@ subprocess.call(['git', 'fetch', '--unshallow'])
 project = 'ddSMT'
 copyright = '2020, Aina Niemetz'
 author = 'Aina Niemetz'
-version = utils.version.VERSION
-release = utils.version.VERSION
+version = ddsmt.version.VERSION
+release = ddsmt.version.VERSION
 
 extensions = [
     'sphinx.ext.autodoc',
