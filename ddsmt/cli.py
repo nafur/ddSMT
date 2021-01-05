@@ -25,15 +25,8 @@
 import logging
 import os
 import pprint
-import shutil
 import sys
 import time
-import tempfile
-
-from argparse import ArgumentParser, REMAINDER
-from multiprocessing import Pool
-from subprocess import Popen, PIPE, TimeoutExpired
-from collections import namedtuple
 
 from . import checker
 from . import ddmin
@@ -42,14 +35,14 @@ from . import options
 from . import parser
 from . import tmpfiles
 from . import smtlib
-from .subst import Substitution
 
 
 def check_options():
     if options.args().max_threads != 1:
         # configure number of threads
         if options.args().max_threads <= 0:
-            options.args().max_threads = os.cpu_count() + options.args().max_threads
+            options.args(
+            ).max_threads = os.cpu_count() + options.args().max_threads
         logging.info('Using up to %d threads.', options.args().max_threads)
 
     if options.args().dump_config:
@@ -69,9 +62,12 @@ def check_options():
     if not options.args().cmd:
         raise Exception('No executable was specified as command')
     if not os.path.isfile(options.args().cmd[0]):
-        raise Exception('Command "{}" is not a regular file'.format(options.args().cmd[0]))
+        raise Exception('Command "{}" is not a regular file'.format(
+            options.args().cmd[0]))
     if not os.access(options.args().cmd[0], os.X_OK):
-        raise Exception('Command "{}" is not executable'.format(options.args().cmd[0]))
+        raise Exception('Command "{}" is not executable'.format(
+            options.args().cmd[0]))
+
 
 def setup_logging():
     logging.basicConfig(format='[ddSMT %(levelname)s] %(message)s')
@@ -80,8 +76,8 @@ def setup_logging():
         1: logging.INFO,
         2: logging.DEBUG,
     }
-    logging.getLogger().setLevel(level=verbositymap.get(
-        options.args().verbosity, logging.DEBUG))
+    logging.getLogger().setLevel(
+        level=verbositymap.get(options.args().verbosity, logging.DEBUG))
 
 
 def ddsmt_main():
@@ -90,7 +86,9 @@ def ddsmt_main():
 
     logging.info("input file:   '{}'".format(options.args().infile))
     logging.info("output file:  '{}'".format(options.args().outfile))
-    logging.info("command:      '{}'".format(" ".join(map(str, options.args().cmd))))
+    logging.info("command:      '{}'".format(" ".join(
+        map(str,
+            options.args().cmd))))
     if options.args().cmd_cc:
         logging.info("command (cc): '{}'".format(options.args().cmd_cc))
 
@@ -102,7 +100,8 @@ def ddsmt_main():
         nexprs = smtlib.node_count(exprs)
 
     logging.debug("parsed {} s-expressions in {:.2f} seconds".format(
-            nexprs, time.time() - start_time))
+        nexprs,
+        time.time() - start_time))
 
     if options.args().parser_test:
         parser.write_smtlib_to_file(options.args().outfile, exprs)
@@ -112,9 +111,9 @@ def ddsmt_main():
     checker.do_golden_runs()
 
     if options.args().strategy == 'ddmin':
-        reduced_exprs,ntests = ddmin.reduce(exprs)
+        reduced_exprs, ntests = ddmin.reduce(exprs)
     elif options.args().strategy == 'naive':
-        reduced_exprs,ntests = ddnaive.reduce(exprs)
+        reduced_exprs, ntests = ddnaive.reduce(exprs)
     end_time = time.time()
     if reduced_exprs != exprs:
         ofilesize = os.path.getsize(options.args().outfile)
@@ -128,11 +127,12 @@ def ddsmt_main():
         logging.info("  s-expressions: {}".format(nexprs))
         logging.info("reduced file:")
         logging.info("  file size:     {} B ({:3.1f}%)".format(
-                ofilesize, ofilesize / ifilesize * 100))
+            ofilesize, ofilesize / ifilesize * 100))
         logging.info("  s-expressions: {} ({:3.1f}%)".format(
-                nreduced_exprs, nreduced_exprs / nexprs * 100))
+            nreduced_exprs, nreduced_exprs / nexprs * 100))
     else:
         logging.warning("unable to minimize input file")
+
 
 def main():
     try:
@@ -144,6 +144,7 @@ def main():
     except Exception as e:
         sys.exit(str(e))
     sys.exit(0)
+
 
 if __name__ == "__main__":
     main()

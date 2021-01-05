@@ -2,14 +2,12 @@ import collections
 import logging
 from multiprocessing import Pool
 import sys
-import time
 
 from . import checker
 from . import options
 from . import parser
 from . import subst
 from . import smtlib
-from . import tmpfiles
 from . import mutators
 from . import progress
 

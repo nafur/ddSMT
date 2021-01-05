@@ -1,6 +1,5 @@
 from multiprocessing import Pool
 import sys
-import time
 
 from . import checker
 from . import options
@@ -8,7 +7,7 @@ from . import parser
 from .subst import Substitution
 from . import mutators
 from . import smtlib
-from . import tmpfiles
+
 
 def ddmin_passes():
     return mutators.collect_mutators(options.args())
@@ -46,7 +45,8 @@ def _process_substitutions(pool, exprs, superset, superset_substs):
         restart = True
         while restart:
             restart = False
-            work_list = [(exprs, x, y) for x, y in zip(subsets, subsets_substs)]
+            work_list = [(exprs, x, y)
+                         for x, y in zip(subsets, subsets_substs)]
             for i, result in enumerate(
                     pool.imap(_process_substitution, work_list, 1)):
 
@@ -89,22 +89,16 @@ def reduce(exprs):
 
     passes = ddmin_passes()
 
-    ntests = 0 
+    ntests = 0
     with Pool(options.args().max_threads) as pool:
-
-        # Delete commands
-        #exprs_filtered = exprs[:]
-        #exprs_substs = [None for x in exprs_filtered]
-        #exprs, nreduced = _process_substitutions(pool,exprs, exprs_filtered,
-        #                                         exprs_substs)
-        #nreduced_total += nreduced
 
         for p in passes:
             exprs_filtered = list(smtlib.filter_exprs(exprs, p.filter))
-            exprs_substs = list(map(lambda x: None if x == [] else x[0], map(p.mutations, exprs_filtered)))
-            exprs, nt = _process_substitutions(pool, exprs,
-                                                     exprs_filtered,
-                                                     exprs_substs)
+            exprs_substs = list(
+                map(lambda x: None if x == [] else x[0],
+                    map(p.mutations, exprs_filtered)))
+            exprs, nt = _process_substitutions(pool, exprs, exprs_filtered,
+                                               exprs_substs)
             ntests += nt
 
     return exprs, ntests
