@@ -31,7 +31,7 @@ class ArithmeticNegateRelations:
     def mutations(self, node):
         negator = { '<': '>=', '<=': '>', '!=': '=', '<>': '=', '>=': '<', '>': '<=' }
         if node[1][0] in negator:
-            return [[negator[node[1][0]]] + node[1][1:]]
+            return [(negator[node[1][0]],) + node[1][1:]]
         return []
     def __str__(self):
         return 'push negation into relation'
@@ -53,7 +53,7 @@ class ArithmeticStrengthenRelations:
     def mutations(self, node):
         negator = { '<': ['='], '>': ['='], '<=': ['<', '='], '>=': ['>', '='] }
         if node[0] in negator:
-            return [[rel] + node[1:] for rel in negator[node[0]]]
+            return [(rel,) + node[1:] for rel in negator[node[0]]]
         return []
     def __str__(self):
         return 'strengthen relation'

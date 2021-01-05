@@ -100,6 +100,10 @@ def reduce(exprs):
         #nreduced_total += nreduced
 
         for p in passes:
+            if not hasattr(p, 'filter'):
+                continue
+            if not hasattr(p, 'mutations'):
+                continue
             exprs_filtered = list(smtlib.filter_exprs(exprs, p.filter))
             exprs_substs = list(map(lambda x: None if x == [] else x[0], map(p.mutations, exprs_filtered)))
             exprs, nt = _process_substitutions(pool, exprs,
