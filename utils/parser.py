@@ -128,3 +128,4 @@ def render_smtlib(exprs):
 def write_smtlib_to_file(filename, exprs):
     """Writes a sequence of nodes to a file."""
     open(filename, 'w').write(render_smtlib(exprs))
+

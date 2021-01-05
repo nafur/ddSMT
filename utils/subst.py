@@ -2,7 +2,7 @@ class Substitution:
     """ Substitution class to store and apply substitutions.
 
         This class supports both local and global substitutions.
-        Local substitutions are based on :code:`id()` and only substitution one single node.
+        Local substitutions are based on :code:`id()` and only substitute one single node.
         Global substitutions are based on hashing and substitute all equal nodes.
     """
 
@@ -78,3 +78,4 @@ def subs_global(expr, old, new):
     s = Substitution()
     s.add_global(old, new)
     return s.apply(expr)
+
