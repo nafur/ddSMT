@@ -2,21 +2,21 @@ import collections
 import logging
 from multiprocessing import Pool
 import sys
-import time
 
-from utils import checker
-from utils import options
-from utils import parser
-from utils import subst
-from utils import smtlib
-from utils import tmpfiles
-from utils import mutators
-from utils import progress
+from . import checker
+from . import options
+from . import parser
+from . import subst
+from . import smtlib
+from . import mutators
+from . import progress
 
 Mutation = collections.namedtuple('Mutation', ['nodeid', 'name', 'exprs'])
 
+
 def ddnaive_passes():
     return mutators.collect_mutators(options.args())
+
 
 class MutationGenerator:
     def __init__(self, skip, mutators):
@@ -34,13 +34,18 @@ class MutationGenerator:
                 if hasattr(m, 'filter') and not m.filter(linput):
                     continue
                 if hasattr(m, 'mutations'):
-                    yield from list(map(lambda x: Mutation(self.__node_count, str(m), subst.subs_local(ginput, linput, x)), m.mutations(linput)))
+                    yield from list(map(
+                        lambda x: Mutation(self.__node_count, str(m), subst.subs_local(ginput, linput, x)),
+                        m.mutations(linput)
+                    ))
                 if hasattr(m, 'global_mutations'):
-                    yield from list(map(lambda x: Mutation(self.__node_count, "(global) " + str(m), subst.subs_global(ginput, linput, x)), m.global_mutations(linput, ginput)))
+                    yield from list(map(
+                        lambda x: Mutation(self.__node_count, "(global) " + str(m), subst.subs_global(ginput, linput, x)),
+                        m.global_mutations(linput, ginput)
+                    ))
             except Exception as e:
                 print("Exception: {}".format(e))
                 pass
-
 
     def generate_mutations(self, original, skip):
         """A generator that produces all possible mutations from the given original."""
@@ -50,8 +55,10 @@ class MutationGenerator:
                 for task in self.__mutate_node(node, original):
                     yield original, task
 
+
 def _check(task):
     return *checker.check_exprs(task[1].exprs), task[1]
+
 
 def reduce(exprs):
     passes = ddnaive_passes()
