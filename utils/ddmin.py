@@ -93,7 +93,7 @@ def reduce(exprs):
 
     nreduced = 0
     ntests = 0 
-    with Pool(options.args().nprocs) as pool:
+    with Pool(options.args().max_threads) as pool:
 
         # Delete commands
         #exprs_filtered = exprs[:]
