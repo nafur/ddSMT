@@ -13,8 +13,10 @@ from . import progress
 
 Mutation = collections.namedtuple('Mutation', ['nodeid', 'name', 'exprs'])
 
+
 def ddnaive_passes():
     return mutators.collect_mutators(options.args())
+
 
 class MutationGenerator:
     def __init__(self, skip, mutators):
@@ -53,8 +55,10 @@ class MutationGenerator:
                 for task in self.__mutate_node(node, original):
                     yield original, task
 
+
 def _check(task):
     return *checker.check_exprs(task[1].exprs), task[1]
+
 
 def reduce(exprs):
     passes = ddnaive_passes()

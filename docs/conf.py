@@ -8,7 +8,7 @@ import sys
 __root_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..')
 sys.path.insert(0, __root_dir)
 
-import ddsmt.version
+import ddsmt.version  # noqa: E402
 
 # make sure we can see the last tag
 subprocess.call(['git', 'fetch', '--unshallow'])
