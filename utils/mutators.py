@@ -94,9 +94,9 @@ def collect_mutators(args):
     """Initializes the list of all active mutators."""
     res = []
     res += mutators_core.collect_mutators(args)
-    #res += mutators_boolean.collect_mutators(args)
-    #res += mutators_arithmetic.collect_mutators(args)
-    #res += mutators_bitvectors.collect_mutators(args)
-    #res += mutators_smtlib.collect_mutators(args)
-    #res += mutators_strings.collect_mutators(args)
+    res += mutators_boolean.collect_mutators(args)
+    res += mutators_arithmetic.collect_mutators(args)
+    res += mutators_bitvectors.collect_mutators(args)
+    res += mutators_smtlib.collect_mutators(args)
+    res += mutators_strings.collect_mutators(args)
     return res
