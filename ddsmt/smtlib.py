@@ -6,6 +6,7 @@ from . import subst
 __defined_functions = {}
 __defined_variables = {}
 
+
 def collect_information(exprs):
     """Initialize global lookups: defined functions and types."""
     global __defined_functions
@@ -33,10 +34,11 @@ def collect_information(exprs):
             assert not is_leaf(cmd[2])
             if not is_leaf(cmd[3]):
                 continue
-            __defined_functions[cmd[1]] = lambda args, cmd=cmd: subst.subs_global(
-                cmd[4],
-                {cmd[2][i][0]: args[i] for i in range(len(args))}
-            )
+            __defined_functions[
+                cmd[1]] = lambda args, cmd=cmd: subst.subs_global(
+                    cmd[4], {cmd[2][i][0]: args[i]
+                             for i in range(len(args))})
+
 
 # Generic utilities
 def dfs(exprs):
@@ -49,6 +51,7 @@ def dfs(exprs):
             visit.extend(list(reversed(sexpr)))
         else:
             yield sexpr
+
 
 def dfs_postorder(exprs):
     """Postorder DFS traversal of s-expressions in exprs."""
@@ -68,16 +71,19 @@ def dfs_postorder(exprs):
 def node_count(node):
     return len(list(dfs(node)))
 
+
 def filter_exprs(exprs, filter_func):
     """Filter s-expressions based on filter_func."""
     for expr in dfs(exprs):
         if filter_func(expr):
             yield expr
 
+
 def has_type(node):
     """Checks whether :code:`node` was defined to have a certain type.
     Mostly applies to variables."""
     return is_leaf(node) and node in __defined_variables
+
 
 def get_type(node):
     """Returns the type of :code:`node` if it was defined to have a certain type.
@@ -89,20 +95,23 @@ def get_type(node):
 def get_variables_with_type(var_type):
     """Returns all variables with the type :code:`var_type`."""
     return [
-        v for v in __defined_variables
-        if __defined_variables[v] == var_type
+        v for v in __defined_variables if __defined_variables[v] == var_type
     ]
 
+
 # Semantic testers
+
 
 def is_leaf(node):
     """Checks whether the :code:`node` is a leaf node."""
     return not isinstance(node, tuple)
 
+
 def has_name(node):
     """Checks whether the :code:`node` has a name,
     that is its first child is a leaf node."""
     return not is_leaf(node) and not node == () and is_leaf(node[0])
+
 
 def get_name(node):
     """Gets the name of the :code:`node`,
@@ -110,10 +119,12 @@ def get_name(node):
     assert has_name(node)
     return node[0]
 
+
 def is_operator(node, name):
     return has_name(node) and get_name(node) == name
 
-def is_indexed_operator(node, name, index_count = 1):
+
+def is_indexed_operator(node, name, index_count=1):
     if is_leaf(node) or len(node) < 2:
         return False
     if has_name(node) or not has_name(node[0]):
@@ -128,31 +139,35 @@ def is_nary(node):
     if is_leaf(node) or not has_name(node):
         return False
     return get_name(node) in [
-        '=>', 'and', 'or', 'xor', '=', 'distinct',
-        '+', '-', '*', 'div', '/',
-        '<=', '<', '>=', '>',
-        'bvand', 'bvor', 'bvadd', 'bvmul', 'concat'
+        '=>', 'and', 'or', 'xor', '=', 'distinct', '+', '-', '*', 'div', '/',
+        '<=', '<', '>=', '>', 'bvand', 'bvor', 'bvadd', 'bvmul', 'concat'
     ]
+
 
 def is_boolean_constant(node):
     """Checks whether the :code:`node` is a Boolean constant."""
     return is_leaf(node) and node in ['false', 'true']
 
+
 def is_arithmetic_constant(node):
     """Checks whether the :code:`node` is an arithmetic constant."""
     return is_leaf(node) and re.match('[0-9]+(\\.[0-9]*)?', node) is not None
+
 
 def is_int_constant(node):
     """Checks whether the :code:`node` is an int constant."""
     return is_leaf(node) and re.match('^[0-9]+$', node) is not None
 
+
 def is_real_constant(node):
     """Checks whether the :code:`node` is a real constant."""
     return is_leaf(node) and re.match('^[0-9]+(\\.[0-9]*)?$', node) is not None
 
+
 def is_string_constant(node):
     """Checks whether the :code:`node` is a string constant."""
     return is_leaf(node) and re.match('^\"[^\"]*\"$', node) is not None
+
 
 def is_bitvector_constant(node):
     if is_leaf(node):
@@ -167,8 +182,11 @@ def is_bitvector_constant(node):
         return False
     return node[1].startswith('bv')
 
+
 def is_constant(node):
-    return is_boolean_constant(node) or is_arithmetic_constant(node) or is_int_constant(node) or is_real_constant(node) or is_string_constant(node) or is_bitvector_constant(node)
+    return is_boolean_constant(node) or is_arithmetic_constant(
+        node) or is_int_constant(node) or is_real_constant(
+            node) or is_string_constant(node) or is_bitvector_constant(node)
 
 
 def is_defined_function(node):
@@ -177,6 +195,7 @@ def is_defined_function(node):
         return node in __defined_functions
     return has_name(node) and get_name(node) in __defined_functions
 
+
 def get_defined_function(node):
     """Returns the defined function :code:`node`, instantiated with the arguments of :code:`node` if necessary.
     Assumes :code:`__is_defined_functions(node)`."""
@@ -184,6 +203,7 @@ def get_defined_function(node):
     if is_leaf(node):
         return __defined_functions[node]([])
     return __defined_functions[get_name(node)](node[1:])
+
 
 def get_constants(const_type):
     """Returns a list of constants for the given type."""
@@ -196,10 +216,10 @@ def get_constants(const_type):
     if is_bitvector_type(const_type):
         return [['_', c, const_type[2]] for c in ['bv0', 'bv1']]
     if is_set_type(const_type):
-        return [['as', 'emptyset', const_type]] + [
-            ['singleton', c] for c in get_constants(const_type[1])
-        ]
+        return [['as', 'emptyset', const_type]
+                ] + [['singleton', c] for c in get_constants(const_type[1])]
     return []
+
 
 def get_return_type(node):
     """Tries to figure out the return type of the given node.
@@ -223,21 +243,44 @@ def get_return_type(node):
         # stuff that returns Bool
         if get_name(node) in [
                 # core theory
-                'not', '=>', 'and', 'or', 'xor', '=', 'distinct',
+                'not',
+                '=>',
+                'and',
+                'or',
+                'xor',
+                '=',
+                'distinct',
                 # bv theory
                 'bvult',
                 # fp theory
-                'fp.leq', 'fp.lt', 'fp.geq', 'fp.gt', 'fp.eq',
-                'fp.isNormal', 'fp.isSubnormal', 'fp.isZero',
-                'fp.isInfinite', 'fp.isNaN',
-                'fp.isNegative', 'fp.isPositive',
+                'fp.leq',
+                'fp.lt',
+                'fp.geq',
+                'fp.gt',
+                'fp.eq',
+                'fp.isNormal',
+                'fp.isSubnormal',
+                'fp.isZero',
+                'fp.isInfinite',
+                'fp.isNaN',
+                'fp.isNegative',
+                'fp.isPositive',
                 # int / real theory
-                '<=', '<', '>>', '>', 'is_int',
+                '<=',
+                '<',
+                '>>',
+                '>',
+                'is_int',
                 # sets theory
-                'member', 'subset',
+                'member',
+                'subset',
                 # string theory
-                'str.<', 'str.in_re', 'str.<=',
-                'str.prefixof', 'str.suffixof', 'str.contains',
+                'str.<',
+                'str.in_re',
+                'str.<=',
+                'str.prefixof',
+                'str.suffixof',
+                'str.contains',
                 'str.is_digit',
         ]:
             return 'Bool'
@@ -246,9 +289,15 @@ def get_return_type(node):
             return 'Bool'
         # stuff that returns Int
         if get_name(node) in [
-                'div', 'mod', 'abs', 'to_int',
+                'div',
+                'mod',
+                'abs',
+                'to_int',
                 # string theory
-                'str.len', 'str.indexof', 'str.to_code', 'str.to_int',
+                'str.len',
+                'str.indexof',
+                'str.to_code',
+                'str.to_int',
                 # sets theory
                 'card'
         ]:
@@ -271,12 +320,14 @@ def is_bitvector_type(node):
         return False
     return node[1] == 'BitVec'
 
+
 def is_set_type(node):
     if is_leaf(node) or len(node) != 2:
         return False
     if not has_name(node) or get_name(node) != 'Set':
         return False
     return True
+
 
 def get_bitvector_width(node):
     if is_bitvector_constant(node):
@@ -291,11 +342,9 @@ def get_bitvector_width(node):
         return int(get_type(node)[2])
     if has_name(node):
         if get_name(node) in [
-                'bvnot', 'bvand', 'bvor',
-                'bvneg', 'bvadd', 'bvmul', 'bvudiv', 'bvurem',
-                'bvshl', 'bvshr',
-                'bvnand', 'bvnor', 'bvxor', 'bvsub', 'bvsdiv',
-                'bvsrem', 'bvsmod', 'bvashr'
+                'bvnot', 'bvand', 'bvor', 'bvneg', 'bvadd', 'bvmul', 'bvudiv',
+                'bvurem', 'bvshl', 'bvshr', 'bvnand', 'bvnor', 'bvxor',
+                'bvsub', 'bvsdiv', 'bvsrem', 'bvsmod', 'bvashr'
         ]:
             return get_bitvector_width(node[1])
         if get_name(node) == 'concat':

@@ -1,4 +1,3 @@
-
 def parse_smtlib(text):
     """Convert SMT-LIB input to list of (nested) Python tuples.
 
@@ -119,7 +118,7 @@ def render_smtlib(exprs):
 
     return '\n'.join(args)
 
+
 def write_smtlib_to_file(filename, exprs):
     """Writes a sequence of nodes to a file."""
     open(filename, 'w').write(render_smtlib(exprs))
-

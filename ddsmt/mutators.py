@@ -110,7 +110,6 @@ def collect_mutator_modes(argparser):
 
 def add_mutator_group(argparser, name):
     """Add a new argument group for a mutator group"""
-    #return argparser.add_argument_group('{} mutator arguments'.format(name))
     return argparser.add_argument_group('{} mutator arguments'.format(name),
                                         help_name=name,
                                         help_group='mutator help',

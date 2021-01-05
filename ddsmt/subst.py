@@ -5,7 +5,6 @@ class Substitution:
         Local substitutions are based on :code:`id()` and only substitute one single node.
         Global substitutions are based on hashing and substitute all equal nodes.
     """
-
     def __init__(self):
         self.__local = {}
         self.__global = {}
@@ -13,22 +12,24 @@ class Substitution:
     def add_local(self, expr, subst):
         """Add local substitution `subst` for `expr`."""
         self.__local[id(expr)] = subst
+
     def add_global(self, expr, subst):
         """Add global substitution `subst` for `expr`."""
         self.__global[expr] = subst
-    
+
     def __str__(self):
         return str(self.__local) + " / " + str(self.__global)
 
     def is_subst(self, expr):
         return id(expr) in self.__local or expr in self.__global
+
     def get_subst(self, expr):
         if id(expr) in self.__local:
             return self.__local[id(expr)]
         if expr in self.__global:
             return self.__global[expr]
         assert False
-    
+
     def apply(self, exprs):
         """Apply substitutions.
 
@@ -70,12 +71,14 @@ class Substitution:
             return tuple(args[0])
         return args[0]
 
+
 def subs_local(expr, old, new):
     s = Substitution()
     s.add_local(old, new)
     return s.apply(expr)
+
+
 def subs_global(expr, old, new):
     s = Substitution()
     s.add_global(old, new)
     return s.apply(expr)
-

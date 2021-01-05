@@ -32,13 +32,18 @@ class MutationGenerator:
                 if hasattr(m, 'filter') and not m.filter(linput):
                     continue
                 if hasattr(m, 'mutations'):
-                    yield from list(map(lambda x: Mutation(self.__node_count, str(m), subst.subs_local(ginput, linput, x)), m.mutations(linput)))
+                    yield from list(map(
+                        lambda x: Mutation(self.__node_count, str(m), subst.subs_local(ginput, linput, x)),
+                        m.mutations(linput)
+                    ))
                 if hasattr(m, 'global_mutations'):
-                    yield from list(map(lambda x: Mutation(self.__node_count, "(global) " + str(m), subst.subs_global(ginput, linput, x)), m.global_mutations(linput, ginput)))
+                    yield from list(map(
+                        lambda x: Mutation(self.__node_count, "(global) " + str(m), subst.subs_global(ginput, linput, x)),
+                        m.global_mutations(linput, ginput)
+                    ))
             except Exception as e:
                 print("Exception: {}".format(e))
                 pass
-
 
     def generate_mutations(self, original, skip):
         """A generator that produces all possible mutations from the given original."""
