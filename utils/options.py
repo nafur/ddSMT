@@ -1,7 +1,8 @@
 import argparse
 
-from utils import mutators
 from utils import argparsemod
+from utils import mutators
+from utils import version
 
 class CustomFormatter(argparse.ArgumentDefaultsHelpFormatter, argparse.HelpFormatter):
     """A custom formatter for printing the commandline help.
@@ -26,6 +27,7 @@ def parse_options():
                     dest="verbosity",
                     default=0,
                     help="increase verbosity")
+    ap.add_argument('--version', action = 'version', version = version.VERSION)
     ap.add_argument('--max-threads', type = int, metavar = 'n', default = 1,
                                help = 'number of threads to use; #processors+n if n<=0')
     ap.add_argument('--dump-config', action='store_true', default = False, help = 'dump configuration')

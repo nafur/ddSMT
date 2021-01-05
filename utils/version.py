@@ -4,9 +4,11 @@ def version_from_git(gitdir):
     import re
     import subprocess
     try:
-        GIT_VERSION = subprocess.check_output(['git', 'describe', '--tags'], cwd = gitdir).decode('utf8').strip()
+        GIT_VERSION = subprocess.check_output(['git', 'describe', '--tags'], cwd = gitdir, stderr = subprocess.PIPE).decode('utf8').strip()
     except subprocess.CalledProcessError:
-        GIT_VERSION = 'v0.0'
+        cnum = subprocess.check_output(['git', 'rev-list', 'HEAD', '--count'], cwd = gitdir).decode('utf8').strip()
+        cid = subprocess.check_output(['git', 'rev-parse', '--short', 'HEAD'], cwd = gitdir).decode('utf8').strip()
+        GIT_VERSION = 'v0.0-{}-g{}'.format(cnum, cid)
     if re.match('^v[0-9.]+$', GIT_VERSION) is not None:
         return GIT_VERSION[1:]
     else:
