@@ -89,16 +89,8 @@ def reduce(exprs):
 
     passes = ddmin_passes()
 
-    ntests = 0 
+    ntests = 0
     with Pool(options.args().max_threads) as pool:
-
-        # Delete commands
-        #exprs_filtered = exprs[:]
-        #exprs_substs = [None for x in exprs_filtered]
-        #exprs, nreduced = _process_substitutions(pool,exprs, exprs_filtered,
-        #                                         exprs_substs)
-        #nreduced_total += nreduced
-
         for p in passes:
             exprs_filtered = list(smtlib.filter_exprs(exprs, p.filter))
             exprs_substs = list(map(lambda x: None if x == [] else x[0], map(p.mutations, exprs_filtered)))
