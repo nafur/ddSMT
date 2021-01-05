@@ -44,9 +44,11 @@ class BVConcatToZeroExtend:
             return False
         return get_bitvector_constant_value(node[1])[0] == 0
     def mutations(self, node):
-        return [
-            [['_', 'zero_extend', get_bitvector_constant_value(node[1])[1]], node[2]]
-        ]
+        return [((
+            '_', 'zero_extend',
+            get_bitvector_constant_value(node[1])[1]
+        ), node[2])]
+
     def __str__(self):
         return 'replace concat by zero_extend'
 
@@ -145,9 +147,8 @@ class BVTransformToBool:
             'bvand': 'and', 'bvor': 'or'
         }
         if has_name(node[2]) and get_name(node[2]) in repl:
-            return [ [repl[get_name(node[2])]] + [
-                ['=', node[1], c] for c in node[2][1:]
-            ]]
+            return [(repl[get_name(node[2])],) + tuple([('=', node[1], c)
+                                                 for c in node[2][1:]])]
         return []
     def __str__(self):
         return 'transform bitvector to boolean'
