@@ -25,25 +25,16 @@
 import logging
 import os
 import pprint
-import shutil
 import sys
 import time
-import tempfile
 
-from argparse import ArgumentParser, REMAINDER
-from multiprocessing import Pool
-from subprocess import Popen, PIPE, TimeoutExpired
-from collections import namedtuple
-
-from utils import checker
-from utils import ddmin
-from utils import ddnaive
-from utils import options
-from utils import parser
-from utils import tmpfiles
-from utils import smtlib
-from utils.subst import Substitution
-import utils.smtlib as smtlib
+from . import checker
+from . import ddmin
+from . import ddnaive
+from . import options
+from . import parser
+from . import tmpfiles
+from . import smtlib
 
 
 def check_options():
@@ -81,8 +72,8 @@ def setup_logging():
         1: logging.INFO,
         2: logging.DEBUG,
     }
-    logging.getLogger().setLevel(level=verbositymap.get(
-        options.args().verbosity, logging.DEBUG))
+    logging.getLogger().setLevel(
+        level=verbositymap.get(options.args().verbosity, logging.DEBUG))
 
 
 def ddsmt_main():
@@ -103,7 +94,8 @@ def ddsmt_main():
         nexprs = smtlib.node_count(exprs)
 
     logging.debug("parsed {} s-expressions in {:.2f} seconds".format(
-            nexprs, time.time() - start_time))
+        nexprs,
+        time.time() - start_time))
 
     if options.args().parser_test:
         parser.write_smtlib_to_file(options.args().outfile, exprs)
@@ -113,9 +105,9 @@ def ddsmt_main():
     checker.do_golden_runs()
 
     if options.args().strategy == 'ddmin':
-        reduced_exprs,ntests = ddmin.reduce(exprs)
+        reduced_exprs, ntests = ddmin.reduce(exprs)
     elif options.args().strategy == 'naive':
-        reduced_exprs,ntests = ddnaive.reduce(exprs)
+        reduced_exprs, ntests = ddnaive.reduce(exprs)
     end_time = time.time()
     if reduced_exprs != exprs:
         ofilesize = os.path.getsize(options.args().outfile)
@@ -129,18 +121,24 @@ def ddsmt_main():
         logging.info("  s-expressions: {}".format(nexprs))
         logging.info("reduced file:")
         logging.info("  file size:     {} B ({:3.1f}%)".format(
-                ofilesize, ofilesize / ifilesize * 100))
+            ofilesize, ofilesize / ifilesize * 100))
         logging.info("  s-expressions: {} ({:3.1f}%)".format(
-                nreduced_exprs, nreduced_exprs / nexprs * 100))
+            nreduced_exprs, nreduced_exprs / nexprs * 100))
     else:
         logging.warning("unable to minimize input file")
 
 
-if __name__ == "__main__":
+def main():
     try:
         ddsmt_main()
     except MemoryError:
         sys.exit("[ddsmt] memory exhausted")
     except KeyboardInterrupt:
         sys.exit("[ddsmt] interrupted")
+    except Exception as e:
+        sys.exit(str(e))
     sys.exit(0)
+
+
+if __name__ == "__main__":
+    main()
