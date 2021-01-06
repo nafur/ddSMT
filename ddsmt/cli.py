@@ -41,8 +41,7 @@ def check_options():
     if options.args().max_threads != 1:
         # configure number of threads
         if options.args().max_threads <= 0:
-            options.args(
-            ).max_threads = os.cpu_count() + options.args().max_threads
+            options.args().max_threads = os.cpu_count() + options.args().max_threads
         logging.info('Using up to %d threads.', options.args().max_threads)
 
     if options.args().dump_config:
@@ -62,12 +61,9 @@ def check_options():
     if not options.args().cmd:
         raise Exception('No executable was specified as command')
     if not os.path.isfile(options.args().cmd[0]):
-        raise Exception('Command "{}" is not a regular file'.format(
-            options.args().cmd[0]))
+        raise Exception('Command "{}" is not a regular file'.format(options.args().cmd[0]))
     if not os.access(options.args().cmd[0], os.X_OK):
-        raise Exception('Command "{}" is not executable'.format(
-            options.args().cmd[0]))
-
+        raise Exception('Command "{}" is not executable'.format(options.args().cmd[0]))
 
 def setup_logging():
     logging.basicConfig(format='[ddSMT %(levelname)s] %(message)s')
@@ -86,9 +82,7 @@ def ddsmt_main():
 
     logging.info("input file:   '{}'".format(options.args().infile))
     logging.info("output file:  '{}'".format(options.args().outfile))
-    logging.info("command:      '{}'".format(" ".join(
-        map(str,
-            options.args().cmd))))
+    logging.info("command:      '{}'".format(" ".join(map(str, options.args().cmd))))
     if options.args().cmd_cc:
         logging.info("command (cc): '{}'".format(options.args().cmd_cc))
 
