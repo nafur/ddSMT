@@ -61,10 +61,9 @@ class ArithmeticSplitNaryRelations:
         return is_arithmetic_relation(node) and len(node) > 3
 
     def mutations(self, node):
-        split = [[get_name(node), node[i], node[i + 1]]
-                 for i in range(1,
-                                len(node) - 1)]
-        return [['and', *split]]
+        split = [(get_name(node), node[i], node[i + 1])
+                 for i in range(1, len(node) - 1)]
+        return [('and', *split)]
 
     def __str__(self):
         return 'split n-ary relation'

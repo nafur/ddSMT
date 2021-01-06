@@ -29,7 +29,7 @@ class EliminateDistinct:
         return has_name(node) and get_name(node) == 'distinct'
 
     def mutations(self, node):
-        return [('not', ['='] + node[1:])]
+        return [('not', tuple(['='] + list(node[1:])))]
 
     def __str__(self):
         return 'eliminate distinct'
@@ -132,9 +132,7 @@ class SimplifyLogic:
 class SimplifyQuotedSymbols:
     """Turns a quoted symbol into a simple symbol."""
     def filter(self, node):
-        return is_quoted_symbol(node) and re.match(
-            '\\|[a-zA-Z0-9~!@$%^&*_+=<>.?/-]+\\|', node) is not None
-
+        return is_quoted_symbol(node) and re.match('\\|[a-zA-Z0-9~!@$%^&*_+=<>.?/-]+\\|', node) is not None
     def global_mutations(self, linput, ginput):
         return [substitute(ginput, {linput: get_quoted_symbol(linput)})]
 

@@ -93,7 +93,7 @@ def parse_smtlib(text):  # noqa: C901
 
 
 def render_smtlib(exprs):
-    """Convert :code:`exprs` to an SMT-LIBv compliant string."""
+    """Convert :code:`exprs` to an SMT-LIBv2 compliant string."""
     if isinstance(exprs, tuple):
         visit = [(exprs, False)]
     else:
