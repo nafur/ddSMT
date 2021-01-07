@@ -219,8 +219,11 @@ def is_defined_function(node):
 
 
 def get_defined_function(node):
-    """Return the defined function :code:`node`, instantiated with the arguments of :code:`node` if necessary.
-    Assumes :code:`__is_defined_functions(node)`."""
+    """
+    Return the defined function :code:`node`, instantiated with the arguments
+    of :code:`node` if necessary.
+    Assumes :code:`__is_defined_function(node)`.
+    """
     assert is_defined_function(node)
     if is_leaf(node):
         return __defined_functions[node]([])
