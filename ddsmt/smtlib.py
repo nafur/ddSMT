@@ -11,7 +11,7 @@ __type_lookup = {}
 
 
 def collect_information(exprs):
-    """Initialize global lookups: defined functions and types."""
+    """Initialize global lookups for first-order constants, defined functions and types of all these symbols."""
     global __defined_functions
     global __type_lookup
     __defined_functions = {}
