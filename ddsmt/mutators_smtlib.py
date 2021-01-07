@@ -78,11 +78,8 @@ class LetSubstitution:
 
 class PushPopRemoval:
     """Removes matching :code:`(push)(pop)` pairs. First tries successive pairs, distant ones later."""
-    def filter(self, node):
-        return not has_name(node)
-
     def global_mutations(self, linput, ginput):
-        if linput != ginput:
+        if linput != ginput[0]:
             return []
         res = []
         pairs = []
