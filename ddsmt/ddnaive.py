@@ -2,6 +2,7 @@ import collections
 import logging
 from multiprocessing import Pool
 import sys
+import time
 
 from . import checker
 from . import options
@@ -68,6 +69,7 @@ def reduce(exprs):
     fresh_run = True
 
     while True:
+        start = time.time()
         smtlib.collect_information(exprs)
         reduction = False
         cnt = smtlib.node_count(exprs)
@@ -81,6 +83,7 @@ def reduce(exprs):
                 progress.update(task.nodeid)
                 if success:
                     sys.stdout.write('\n')
+                    runtime = time.time() - start
                     logging.info('Found simplification: {} ({:.2f}s)'.format(task.name, runtime))
                     reduction = True
                     exprs = task.exprs
