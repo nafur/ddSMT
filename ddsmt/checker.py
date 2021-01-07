@@ -98,14 +98,7 @@ def check_exprs(exprs):
     check was successful and (False,0) otherwise."""
     tmpfile = tmpfiles.get_tmp_filename()
     parser.write_smtlib_to_file(tmpfile, exprs)
-
-    runtime = 0
-    start = time.time()
-    if check(tmpfile):
-        runtime = time.time() - start
-        return True, runtime
-
-    return False, 0
+    return check(tmpfile)
 
 
 def check_substitution(exprs, subst):
@@ -115,14 +108,12 @@ def check_substitution(exprs, subst):
     Otherwise returns (0,[],0)."""
     test_exprs = subst.apply(exprs)
 
-    success, runtime = check_exprs(test_exprs)
+    success = check_exprs(test_exprs)
 
-    nreduced = 0
     if success:
-        nreduced = smtlib.node_count(exprs) - smtlib.node_count(test_exprs)
-        return nreduced, test_exprs, runtime
+        return test_exprs
 
-    return 0, [], 0
+    return []
 
 
 def do_golden_runs():

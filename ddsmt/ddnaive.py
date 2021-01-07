@@ -58,7 +58,7 @@ class MutationGenerator:
 
 
 def _check(task):
-    return *checker.check_exprs(task[1].exprs), task[1]
+    return checker.check_exprs(task[1].exprs), task[1]
 
 
 def reduce(exprs):
@@ -72,14 +72,14 @@ def reduce(exprs):
         start = time.time()
         smtlib.collect_information(exprs)
         reduction = False
-        cnt = smtlib.node_count(exprs)
+        cnt = smtlib.count_nodes(exprs)
         progress.start(cnt)
         progress.update(min(cnt, skip))
         with Pool(options.args().max_threads) as pool:
             mg = MutationGenerator(skip, passes)
             for result in pool.imap(_check, mg.generate_mutations(exprs, skip)):
                 nchecks += 1
-                success, runtime, task = result
+                success, task = result
                 progress.update(task.nodeid)
                 if success:
                     sys.stdout.write('\n')
