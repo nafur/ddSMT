@@ -5,6 +5,7 @@ import sys
 import time
 
 from . import checker
+from . import nodes
 from . import options
 from . import parser
 from . import subst
@@ -36,7 +37,7 @@ class MutationGenerator:
                     continue
                 if hasattr(m, 'mutations'):
                     yield from list(map(
-                        lambda x: Mutation(self.__node_count, str(m), subst.subs_local(ginput, linput, x)),
+                        lambda x: Mutation(self.__node_count, str(m), nodes.substitute(ginput, {linput.id: x})),
                         m.mutations(linput)
                     ))
                 if hasattr(m, 'global_mutations'):
@@ -50,7 +51,7 @@ class MutationGenerator:
 
     def generate_mutations(self, original, skip):
         """A generator that produces all possible mutations from the given original."""
-        for node in smtlib.dfs(original):
+        for node in nodes.dfs(original):
             self.__node_count += 1
             if skip < self.__node_count:
                 for task in self.__mutate_node(node, original):
