@@ -92,7 +92,7 @@ def count_exprs(node):
     Return the number of tuples yielded when traversing :code:`node` in
     DFS manner.
     """
-    return len([x for x in nodes.dfs(node) if isinstance(x, tuple)])
+    return len([x for x in nodes.dfs(node) if not x.is_leaf()])
 
 
 def filter_exprs(exprs, filter_func, max_depth = -1):
