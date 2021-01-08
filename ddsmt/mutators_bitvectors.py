@@ -86,8 +86,8 @@ class BVElimBVComp:
         return has_name(node) and get_name(node) == '=' and is_bv_constant(node[1]) and has_name(node[2]) and get_name(node[2]) == 'bvcomp'
     def mutations(self, node):
         return [
-            ['='] + node[2][1:],
-            ['not', ['='] + node[2][1:]],
+            ('=',) + node[2][1:],
+            ('not', ('=',) + node[2][1:]),
         ]
 
     def __str__(self):
@@ -102,7 +102,7 @@ class BVEvalExtend:
     def mutations(self, node):
         if is_bv_constant(node[1]):
             (val, width) = get_bv_constant_value(node[1])
-            return [['_', 'bv{}'.format(val), str(width + node[0][2])]]
+            return [('_', 'bv{}'.format(val), str(width + node[0][2]))]
         return []
 
     def __str__(self):
@@ -119,7 +119,7 @@ class BVExtractConstants:
         constant = get_bv_constant_value(node[1])[0]
         constant = constant % (2**(upper + 1))
         constant -= constant % (2**lower)
-        return [['_', 'bv{}'.format(constant), str(upper - lower + 1)]]
+        return [('_', 'bv{}'.format(constant), str(upper - lower + 1))]
 
     def __str__(self):
         return 'evaluate bit-vector extract on constant'
@@ -139,7 +139,7 @@ class BVOneZeroITE:
         return True
 
     def mutations(self, node):
-        return [['bvcomp', node[1][1], node[1][2]]]
+        return [('bvcomp', node[1][1], node[1][2])]
 
     def __str__(self):
         return 'eliminate ite with bv1 / bv0 cases'
