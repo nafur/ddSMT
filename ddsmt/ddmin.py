@@ -108,9 +108,9 @@ def _apply_mutator(mutator, exprs):
 
     if options.args().verbosity >= 2:
         _clear_msg(len(msg))
-        logging.info("[ddSMT INFO] {}: diff {:+} expressions, {} tests, " \
-                "{:.1f}s".format(mutator, -nreduced_total, ntests,
-                                 time.time() - start_time))
+        logging.info("{}: diff {:+} expressions, {} tests, {:.1f}s".format(
+                        mutator, -nreduced_total, ntests,
+                        time.time() - start_time))
 
     return exprs, ntests, nreduced_total
 
@@ -136,7 +136,9 @@ def reduce(exprs):
     ntests_total = 0
 
     passes = [RemoveCommand()]
-    #passes.extend(ddmin_passes())
+    passes.extend(
+        p for p in ddmin_passes() \
+                if hasattr(p, 'filter') and hasattr(p, 'mutations'))
 
     for mut in passes:
         while True:
@@ -146,13 +148,6 @@ def reduce(exprs):
             if nreduced == 0:
                 break
 
-    #for mut in ddmin_passes():
-    #    if not hasattr(mut, 'filter'):
-    #        continue
-    #    if not hasattr(mut, 'mutations'):
-    #        continue
-    #    exprs, nt = _apply_mutator(mut, exprs)
-    #    ntests += nt
 
 
     return exprs, ntests_total
