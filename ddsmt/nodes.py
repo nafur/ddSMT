@@ -18,21 +18,37 @@ class Node:
         if len(args) == 1 and isinstance(args[0], str):
             self.data = args[0]
         else:
-            self.data = tuple(args)
+            self.data = tuple(
+                map(lambda a: self.__ensure_is_node(a), list(args))
+            )
             assert all(map(lambda t: isinstance(t, Node), self.data))
-    
+
+    def __ensure_is_node(self, data):
+        """Recursively walk data and make sure everything is a node"""
+        if isinstance(data, Node):
+            return data
+        if isinstance(data, str):
+            return Node(data)
+        if isinstance(data, tuple):
+            res = []
+            for d in data:
+                res.append(self.__ensure_is_node(d))
+            return Node(*res)
+        return None
+
     def __str__(self):
         if isinstance(self.data, str):
             return self.data
         return f'(' + ' '.join(map(str, self.data)) + ')'
+
     def __repr__(self):
         return str(self)
-    
+
     def __len__(self):
         if self.is_leaf():
             return 0
         return len(self.data)
-    
+
     def __getitem__(self, key):
         return self.data[key]
 
