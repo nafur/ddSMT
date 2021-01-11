@@ -59,7 +59,7 @@ class EliminateImplications:
         return has_name(node) and get_name(node) == '=>' and len(node) == 3
 
     def mutations(self, node):
-        return [('or', ('not', node[1]), node[2])]
+        return [Node('or', ('not', node[1]), node[2])]
 
     def __str__(self):
         return 'eliminate implication'
@@ -72,9 +72,9 @@ class NegatedQuantifiers:
 
     def mutations(self, node):
         if get_name(node[1]) == 'exists':
-            return [('forall', node[1][1], ('not', node[1][2]))]
+            return [Node('forall', node[1][1], ('not', node[1][2]))]
         if get_name(node[1]) == 'forall':
-            return [('exists', node[1][1], ('not', node[1][2]))]
+            return [Node('exists', node[1][1], ('not', node[1][2]))]
         return []
 
     def __str__(self):
