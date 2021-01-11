@@ -68,7 +68,7 @@ class LetSubstitution:
         res = []
         for var in node[1]:
             if any(n == var[0] for n in dfs(node[2])):
-                subs = subst.subs_global(node[2], {var[0]: var[1]})
+                subs = nodes.substitute(node[2], {var[0]: var[1]})
                 res.append([node[0], node[1], subs])
         return res
 
@@ -133,7 +133,7 @@ class SimplifyQuotedSymbols:
         return is_quoted_symbol(node) and re.match('\\|[a-zA-Z0-9~!@$%^&*_+=<>.?/-]+\\|', node) is not None
 
     def global_mutations(self, linput, ginput):
-        return [subst.subs_global(ginput, {linput: get_quoted_symbol(linput)})]
+        return [nodes.substitute(ginput, {linput: get_quoted_symbol(linput)})]
 
     def __str__(self):
         return 'simplify quoted symbol'
@@ -172,11 +172,11 @@ class SimplifySymbolNames:
         """Return a list of mutations of ginput based on simpler versions of symbol."""
         if is_quoted_symbol(symbol):
             return [
-                subst.subs_global(ginput, {symbol: '|' + s + '|'})
+                nodes.substitute(ginput, {symbol: Node('|' + s + '|')})
                 for s in self.__simpler(get_quoted_symbol(symbol))
             ]
         return [
-            subst.subs_global(ginput, {symbol: s}) for s in self.__simpler(symbol)
+            nodes.substitute(ginput, {symbol: Node(s)}) for s in self.__simpler(symbol)
         ]
 
     def __simpler(self, symbol):
