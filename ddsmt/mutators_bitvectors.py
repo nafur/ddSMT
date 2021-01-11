@@ -263,7 +263,7 @@ class BVMergeReducedBW:
         deffun_zext = int(deffun_body[0][-1].data)
         decfun_name = deffun_body[-1]
         return [
-            ('define-fun',
+            Node('define-fun',
              name,
              (),
              ('zero_extend', str(zext + deffun_zext), decfun_name)
