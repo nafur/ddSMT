@@ -145,6 +145,19 @@ def collect_mutator_options(argparser):
     options.add_mutator_argument(argparser, 'top-level-binary-reduction', True,
                                  'use top level binary reduction')
 
+def get_mutators():
+    """Returns a mapping from mutator class names to the name of their config options."""
+    if not options.args().mutator_core:
+        return {}
+    return {
+        'Constants': 'constants',
+        'EraseNode': 'erase_node',
+        'MergeChildren': 'merge_children',
+        'ReplaceByVariable': 'replace_by_variable',
+        'SortChildren': 'sort_children',
+        'SubstituteChildren': 'substitute_children',
+        'TopLevelBinaryReduction': 'top_level_binary_reduction',
+    }
 
 def collect_mutators(args):
     res = []
