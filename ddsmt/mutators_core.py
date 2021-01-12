@@ -159,6 +159,7 @@ def get_mutators():
         'TopLevelBinaryReduction': 'top_level_binary_reduction',
     }
 
+
 def collect_mutators(args):
     res = []
     if args.mutator_core:

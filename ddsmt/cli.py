@@ -73,6 +73,7 @@ def check_options():
     if not os.access(options.args().cmd[0], os.X_OK):
         raise DDSMTException('Command "{}" is not executable'.format(options.args().cmd[0]))
 
+
 def setup_logging():
     logging.basicConfig(format='[ddSMT %(levelname)s] %(message)s')
     verbositymap = {

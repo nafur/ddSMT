@@ -42,16 +42,9 @@ class ArithmeticNegateRelations:
         return is_operator(node, 'not') and is_arithmetic_relation(node[1])
 
     def mutations(self, node):
-        negator = {
-            '<': '>=',
-            '<=': '>',
-            '!=': '=',
-            '<>': '=',
-            '>=': '<',
-            '>': '<='
-        }
+        negator = {'<': '>=', '<=': '>', '!=': '=', '<>': '=', '>=': '<', '>': '<='}
         if node[1][0] in negator:
-            return [(negator[node[1][0]],) + node[1][1:]]
+            return [(negator[node[1][0]], ) + node[1][1:]]
         return []
 
     def __str__(self):
@@ -64,8 +57,7 @@ class ArithmeticSplitNaryRelations:
         return is_arithmetic_relation(node) and len(node) > 3
 
     def mutations(self, node):
-        split = [(get_name(node), node[i], node[i + 1])
-                 for i in range(1, len(node) - 1)]
+        split = [(get_name(node), node[i], node[i + 1]) for i in range(1, len(node) - 1)]
         return [Node('and', *split)]
 
     def __str__(self):

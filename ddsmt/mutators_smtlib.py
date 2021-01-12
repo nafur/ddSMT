@@ -86,9 +86,9 @@ class PushPopRemoval:
         # identify (push) / (pop) pairs
         stack = []
         for i in range(len(ginput)):
-            if ginput[i] == ('push',):
+            if ginput[i] == ('push', ):
                 stack.append(i)
-            if ginput[i] == ('pop',) and stack != []:
+            if ginput[i] == ('pop', ) and stack != []:
                 pairs.append((stack[-1], i))
                 stack.pop()
         # remove directly successive pairs
@@ -143,8 +143,7 @@ class SimplifySymbolNames:
     """Simplify variable names."""
     def filter(self, node):
         return has_name(node) and get_name(node) in [
-            'declare-const', 'declare-datatypes', 'declare-fun',
-            'declare-sort', 'exists', 'forall'
+            'declare-const', 'declare-datatypes', 'declare-fun', 'declare-sort', 'exists', 'forall'
         ]
 
     def global_mutations(self, linput, ginput):
@@ -175,9 +174,7 @@ class SimplifySymbolNames:
                 nodes.substitute(ginput, {symbol: Node('|' + s + '|')})
                 for s in self.__simpler(get_quoted_symbol(symbol))
             ]
-        return [
-            nodes.substitute(ginput, {symbol: Node(s)}) for s in self.__simpler(symbol)
-        ]
+        return [nodes.substitute(ginput, {symbol: Node(s)}) for s in self.__simpler(symbol)]
 
     def __simpler(self, symbol):
         """Return a list of simpler versions of the given symbol."""

@@ -5,8 +5,6 @@ import time
 
 from . import checker
 from . import options
-from . import parser
-from .subst import Substitution
 from . import mutators
 from . import smtlib
 from . import nodes
@@ -25,9 +23,9 @@ def _subst(exprs, subset, mutator):
         node = subset[0]
         mutations = mutator.mutations(node)
         if mutations:
-            res.extend(nodes.substitute(exprs, {node.id : x}) for x in mutations)
+            res.extend(nodes.substitute(exprs, {node.id: x}) for x in mutations)
         else:
-            res.append(nodes.substitute(exprs, {node.id : None}))
+            res.append(nodes.substitute(exprs, {node.id: None}))
     else:
         substs = dict()
         for node in subset:
@@ -112,7 +110,7 @@ def _apply_mutator(mutator, exprs):
 
                     if options.args().verbosity >= 2:
                         _clear_msg(len(msg))
-                        msg ="[ddSMT INFO] {}: granularity: {}, subset {} of {}, " \
+                        msg = "[ddSMT INFO] {}: granularity: {}, subset {} of {}, " \
                                 "expressions: {}/{}\r".format(
                                         mutator, gran, task_id, len(subsets),
                                         nexprs - nreduced_total, nexprs)

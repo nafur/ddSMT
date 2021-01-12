@@ -70,8 +70,5 @@ class ModularArgumentParser(argparse.ArgumentParser):
 
     def format_help(self):
         """Removes all items from :code:`self._action_groups` that are still in :code:`self._modular_action_groups`."""
-        self._action_groups = [
-            ag for ag in self._action_groups
-            if ag not in self._modular_action_groups
-        ]
+        self._action_groups = [ag for ag in self._action_groups if ag not in self._modular_action_groups]
         return super().format_help()

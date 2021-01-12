@@ -1,6 +1,5 @@
 from .nodes import Node
 from . import options
-from . import subst
 from .smtlib import *
 
 NAME = 'bitvector'
@@ -85,6 +84,7 @@ class BVElimBVComp:
     """Replace bvcomp by a regular equality."""
     def filter(self, node):
         return has_name(node) and get_name(node) == '=' and is_bv_constant(node[1]) and has_name(node[2]) and get_name(node[2]) == 'bvcomp'
+
     def mutations(self, node):
         return [
             Node('=', *node[2][1:]),
@@ -114,6 +114,7 @@ class BVExtractConstants:
     """Evaluates a bit-vector :code:`extract` if it is applied to a constant."""
     def filter(self, node):
         return is_indexed_operator(node, 'extract') and is_bv_constant(node[1])
+
     def mutations(self, node):
         upper = int(node[0][2])
         lower = int(node[0][3])
@@ -164,6 +165,7 @@ class BVSimplifyConstant:
     """Replace a constant by a simpler version (smaller value)."""
     def filter(self, node):
         return is_bv_constant(node) and get_bv_constant_value(node)[0] not in [0, 1]
+
     def mutations(self, node):
         val, width = get_bv_constant_value(node)
         return [
@@ -187,7 +189,7 @@ class BVTransformToBool:
         return has_name(node) and get_name(node) == '=' and is_bv_constant(node[1]) and get_bv_width(node[1]) == 1
 
     def mutations(self, node):
-        repl = {'bvand': 'and', 'bvor': 'or', 'bvxor' : 'xor'}
+        repl = {'bvand': 'and', 'bvor': 'or', 'bvxor': 'xor'}
         if has_name(node[2]) and get_name(node[2]) in repl:
             return [Node(repl[get_name(node[2])], *[Node('=', node[1], c)
                                                  for c in node[2][1:]])]
@@ -195,6 +197,7 @@ class BVTransformToBool:
 
     def __str__(self):
         return 'transform bit-vector to boolean'
+
 
 class BVReduceBW:
     """

@@ -82,6 +82,6 @@ def subs_local(expr, old, new):
 def subs_global(expr, repl):
     """Shorthand to apply multiple global substitutions given by the dictionary repl."""
     s = Substitution()
-    for old,new in repl.items():
+    for old, new in repl.items():
         s.add_global(old, new)
     return s.apply(expr)
