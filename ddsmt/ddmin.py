@@ -199,7 +199,7 @@ def reduce(exprs):
         for mut in passes:
             exprs, ntests, nreduced = _apply_mutator(mut, exprs)
             ntests_total += ntests
-            nreduced_round +=  nreduced
+            nreduced_round += nreduced
 
         if nreduced_round == 0:
             break

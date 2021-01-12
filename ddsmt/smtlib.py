@@ -1,7 +1,7 @@
 import re
 
 from . import nodes
-from .nodes import dfs, Node
+from .nodes import Node
 
 # Stores all declared or defined (first-order) constants with their types
 __constants = {}
@@ -51,6 +51,7 @@ def collect_information(exprs):
                              for i in range(len(args))})
             __type_lookup[cmd[1].data] = cmd[3]
 
+
 # Generic utilities
 def count_nodes(node):
     """
@@ -58,6 +59,7 @@ def count_nodes(node):
     DFS manner.
     """
     return len(list(nodes.dfs(node)))
+
 
 def count_exprs(node):
     """
@@ -67,7 +69,7 @@ def count_exprs(node):
     return len([x for x in nodes.dfs(node) if not x.is_leaf()])
 
 
-def filter_exprs(exprs, filter_func, max_depth = -1):
+def filter_exprs(exprs, filter_func, max_depth=-1):
     """Filter s-expressions based on filter_func."""
     for expr in nodes.dfs(exprs, max_depth):
         if filter_func(expr):

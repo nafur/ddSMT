@@ -58,24 +58,26 @@ class Node:
         if isinstance(other, tuple):
             return not self.is_leaf() and self.data == other
         return self.data == other.data
-    
+
     def __hash__(self):
         return hash(self.data)
-    
+
     def is_leaf(self):
         return isinstance(self.data, str)
+
     def has_name(self):
         return isinstance(self.data, tuple) and self.data and self.data[0].is_leaf()
+
     def get_name(self):
         assert(self.has_name())
         return self.data[0]
 
 
 def parse_smtlib(text):  # noqa: C901
-    """Convert SMT-LIB input to list of (nested) Python tuples.
+    """
+    Parse SMT-LIB input to list of :code:`Node` objects.
 
-        A tuple represents an s-expression in SMT-LIB. This generator yields
-        top-level s-expressions (commands) or comments.
+    Every node represents an s-expression. This generator yields top-level s-expressions (commands) or comments.
     """
     exprs = []
     cur_expr = None
@@ -163,7 +165,7 @@ def parse_smtlib(text):  # noqa: C901
                 yield token
 
 
-def dfs(exprs, max_depth = None):
+def dfs(exprs, max_depth=None):
     """
     DFS traversal of s-expressions in exprs up to a maximum depth.
     """
