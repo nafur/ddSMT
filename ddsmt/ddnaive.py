@@ -12,56 +12,36 @@ from . import options
 from . import progress
 from . import smtlib
 
+
 def ddnaive_passes():
     """Returns a list of passes, each pass being a list of mutators.
     The list is ordered so that earlier passes are more promising for a quick reduction."""
 
+    early = [  # Usually yield strong reduction / need to be done early on
+        'Constants',
+        'EraseNode',
+        'SubstituteChildren',
+        'TopLevelBinaryReduction',
+        'CheckSatAssuming',
+        'LetElimination',
+        'LetSubstitution',
+        'PushPopRemoval',
+    ]
+    late = [  # Usually only have cosmetic impact
+        'SimplifyQuotedSymbols',
+        'SimplifySymbolNames',
+        'StringSimplifyConstant',
+    ]
+    mid = []
+    for _, theory in mutators.get_all_mutators().items():
+        for mname in theory[1]:
+            if mname not in early and mname not in late:
+                mid.append(mname)
+
     return [
-        mutators.get_mutators([  # Usually yield strong reduction / need to be done early on
-            'Constants',
-            'EraseNode',
-            'SubstituteChildren',
-            'TopLevelBinaryReduction',
-            'CheckSatAssuming',
-            'LetElimination',
-            'LetSubstitution',
-            'PushPopRemoval',
-        ]),
-        mutators.get_mutators([  # Regular mutators
-            'ArithmeticSimplifyConstant',
-            'ArithmeticNegateRelations',
-            'ArithmeticSplitNaryRelations',
-            'ArithmeticStrengthenRelations',
-            'BVConcatToZeroExtend',
-            'BVDoubleNegation',
-            'BVElimBVComp',
-            'BVEvalExtend',
-            'BVExtractConstants',
-            'BVOneZeroITE',
-            'BVReflexiveNand',
-            'BVSimplifyConstant',
-            'BVTransformToBool',
-            'BVReduceBW',
-            'BVMergeReducedBW',
-            'BVExtractZeroExtend',
-            'DeMorgan',
-            'DoubleNegation',
-            'EliminateFalseEquality',
-            'EliminateImplications',
-            'XORRemoveConstants',
-            'XOREliminateBinary',
-            'MergeWithChildren',
-            'ReplaceByVariable',
-            'SortChildren',
-            'EliminateDistinct',
-            'InlineDefinedFuns',
-            'SimplifyLogic',
-            'StringSimplifyConstant',
-        ]),
-        mutators.get_mutators([  # Usually only have cosmetic impact
-            'SimplifyQuotedSymbols',
-            'SimplifySymbolNames',
-        ])
+        mutators.get_mutators(early),
+        mutators.get_mutators(mid),
+        mutators.get_mutators(late)
     ]
 
 
