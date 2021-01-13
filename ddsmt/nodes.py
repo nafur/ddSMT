@@ -154,7 +154,7 @@ def parse_smtlib(text):  # noqa: C901
                 pos += 1
                 if char in (' ', '\t', '\n'):
                     break
-                if char in ('(', ')'):
+                if char in ('(', ')', ';'):
                     pos -= 1
                     break
                 token.append(char)
@@ -270,7 +270,10 @@ def __render_smtlib_expression(expr: Node, pretty: bool = False):
         ex, visited = visit.pop()
         if ex.is_leaf():
             assert isinstance(ex.data, str)
-            args.append(str(ex.data))
+            if ex.data[0] == ';':
+                args.append(f'\n{ex.data}\n')
+            else:
+                args.append(str(ex.data))
             continue
 
         if visited:
