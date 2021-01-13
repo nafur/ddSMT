@@ -1,7 +1,6 @@
 import argparse
 
 from . import argparsemod
-from . import mutators
 from . import version
 
 
@@ -15,7 +14,7 @@ class CustomFormatter(argparse.ArgumentDefaultsHelpFormatter,
         super().__init__(*args, **kwargs, max_help_position=35)
 
 
-def parse_options():
+def parse_options(mutators):
     """Configures the commandline parse and then parse the commandline options."""
 
     usage = "ddsmt.py [<options>] <infile> <outfile> <cmd> [<cmd options>]"
@@ -77,6 +76,9 @@ def parse_options():
                     help="run ddSMT in parser test mode "
                     "(parses only, does not require command argument)")
 
+    ap.add_argument('--pretty-print', action='store_true', default=False, help='pretty-print to output file')
+    ap.add_argument('--wrap-lines', action='store_true', default=False, help='wrap lines in output file')
+
     apcc = ap.add_argument_group('cross check')
     apcc.add_argument("-c",
                       metavar='cmd-cc',
@@ -122,7 +124,9 @@ def args():
     """Returns the commandline options. Calls :code:`parse_options()` if parsing has not yet happened."""
     global __PARSED_ARGS
     if __PARSED_ARGS is None:
-        __PARSED_ARGS = parse_options()
+        # make sure that options as a whole does not depend on other modules
+        from . import mutators
+        __PARSED_ARGS = parse_options(mutators)
     return __PARSED_ARGS
 
 
