@@ -10,7 +10,7 @@ class ToggleAction(argparse.Action):
     def __init__(self, opt_name, dest=None, help=None):
         super(ToggleAction, self).__init__(
             [f'--{opt_name}', f'--no-{opt_name}'],
-            dest=dest, nargs=0, help=help,
+            dest=dest, nargs=0, help=help, default=True
         )
 
     def _get_value(self, option_string):
