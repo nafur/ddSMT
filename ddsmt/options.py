@@ -1,4 +1,5 @@
 import argparse
+import os
 
 from . import argparsemod
 from . import version
@@ -91,8 +92,8 @@ def parse_options(mutators):
     apcheck.add_argument('-j', '--jobs',
                          type=int,
                          metavar='n',
-                         default=-2,
-                         help='number of parallel checks; #processors+n if n<=0')
+                         default=os.cpu_count() - 2,
+                         help='number of parallel checks')
     apcheck.add_argument('--memout',
                          type=int,
                          metavar='megabytes',
