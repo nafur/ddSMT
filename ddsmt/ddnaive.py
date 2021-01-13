@@ -16,8 +16,6 @@ def ddnaive_passes():
     """Returns a list of passes, each pass being a list of mutators.
     The list is ordered so that earlier passes are more promising for a quick reduction."""
 
-    mutators.get_mutators(['Constants', 'EraseNode', 'Foo'])
-
     return [
         mutators.get_mutators([  # Usually yield strong reduction / need to be done early on
             'Constants',
