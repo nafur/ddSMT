@@ -136,9 +136,6 @@ def parse_options(mutators):
                          metavar='str',
                          help="match string in stdout to identify failing input for cross check command")
 
-    argp_modes = ap.add_argument_group('special modes')
-    mutators.collect_mutator_modes(argp_modes)
-
     mutators.collect_mutator_options(ap)
 
     res = ap.parse_args()
