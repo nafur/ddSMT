@@ -92,6 +92,7 @@ def parse_options(mutators):
 
     apcheck.add_argument("-c",
                          metavar='cmd-cc',
+                         dest='cmd_cc',
                          help="cross check command")
     apcheck.add_argument(
         "--timeout-cc",
