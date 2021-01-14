@@ -3,7 +3,7 @@ from .. import mutators_boolean
 
 
 def test_de_morgan():
-    m = mutators_boolean.DeMorgan()
+    m = mutators_boolean.BoolDeMorgan()
     notfilter = [
         Node('=', '1', 'y'),
         Node('and', 'x', 'y'),
@@ -18,3 +18,4 @@ def test_de_morgan():
     for k, v in exprs.items():
         assert m.filter(k)
         assert m.mutations(k) == v
+
