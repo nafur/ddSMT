@@ -18,9 +18,8 @@ def ddnaive_passes():
     The list is ordered so that earlier passes are more promising for a quick reduction."""
 
     early = [  # Usually yield strong reduction / need to be done early on
-        'Constants',
         'EraseNode',
-        'SubstituteChildren',
+        'ReplaceByChild',
         'TopLevelBinaryReduction',
         'CheckSatAssuming',
         'LetElimination',

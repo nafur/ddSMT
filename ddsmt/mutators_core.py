@@ -47,6 +47,18 @@ class MergeWithChildren:
         return 'merge with child'
 
 
+class ReplaceByChild:
+    """Substitutes a node with one of its children."""
+    def filter(self, node):
+        return not is_leaf(node) and not is_operator(node, 'let')
+
+    def mutations(self, node):
+        return list(node[1:])
+
+    def __str__(self):
+        return 'substitute with child'
+
+
 class ReplaceByVariable:
     """Replaces a node by a variable."""
     def filter(self, node):
@@ -81,18 +93,6 @@ class SortChildren:
 
     def __str__(self):
         return 'sort children'
-
-
-class SubstituteChildren:
-    """Substitutes a node with one of its children."""
-    def filter(self, node):
-        return not is_leaf(node) and not is_operator(node, 'let')
-
-    def mutations(self, node):
-        return list(node[1:])
-
-    def __str__(self):
-        return 'substitute with child'
 
 
 class TopLevelBinaryReduction:
@@ -130,8 +130,8 @@ def get_mutators():
         'Constants': 'constants',
         'EraseNode': 'erase-node',
         'MergeWithChildren': 'merge-children',
+        'ReplaceByChild': 'substitute-children',
         'ReplaceByVariable': 'replace-by-variable',
         'SortChildren': 'sort-children',
-        'SubstituteChildren': 'substitute-children',
         'TopLevelBinaryReduction': 'top-level-binary-reduction',
     }
