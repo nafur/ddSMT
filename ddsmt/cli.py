@@ -92,7 +92,7 @@ def ddsmt_main():
     start_time = time.time()
     with open(options.args().infile, 'r') as infile:
         exprs = list(nodes.parse_smtlib(infile.read()))
-        nexprs = smtlib.count_exprs(exprs)
+        nexprs = nodes.count_exprs(exprs)
 
     logging.debug("parsed {} s-expressions in {:.2f} seconds".format(
         nexprs,
@@ -112,7 +112,7 @@ def ddsmt_main():
     end_time = time.time()
     if reduced_exprs != exprs:
         ofilesize = os.path.getsize(options.args().outfile)
-        nreduced_exprs = smtlib.count_exprs(reduced_exprs)
+        nreduced_exprs = nodes.count_exprs(reduced_exprs)
 
         logging.info("")
         logging.info("runtime:         {:.2f} s".format(end_time - start_time))
