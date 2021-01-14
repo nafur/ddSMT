@@ -13,7 +13,7 @@ class ArithmeticNegateRelation:
         return is_operator(node, 'not') and is_arithmetic_relation(node[1])
 
     def mutations(self, node):
-        negator = {'<': '>=', '<=': '>', '!=': '=', '<>': '=', '>=': '<', '>': '<=', 'distinct': '=', '=': 'distinct'}
+        negator = {'<': '>=', '<=': '>', '!=': '=', '<>': '=', '>=': '<', '>': '<=', 'distinct': '='}
         if node[1][0] in negator:
             return [(negator[node[1][0]], ) + node[1][1:]]
         return []
